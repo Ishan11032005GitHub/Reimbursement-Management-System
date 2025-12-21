@@ -1,0 +1,163 @@
+/* ===== Container ===== */
+.manager-container {
+  padding: 2.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* ===== Title ===== */
+.manager-title {
+  font-size: 3rem;
+  color: #001BB7;
+  margin-bottom: 1.5rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* ===== Message ===== */
+.manager-message {
+  color: #2e7d32;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* ===== Empty ===== */
+.empty-state {
+  color: #666;
+  font-style: italic;
+}
+
+/* ===== List ===== */
+.manager-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* ===== Card ===== */
+.manager-card {
+  background: lab(85.13% -10.78 -15.89 / 0.364);
+  padding: 1.4rem 1.6rem;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ===== Info ===== */
+.manager-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.manager-request-title {
+  font-size: 3rem;
+  font-weight: 600;
+  color: #001BB7;
+}
+
+/* ===== Status Badge ===== */
+.status-badge.submitted {
+  width: fit-content;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(255, 193, 7, 0.25);
+  color: #b58900;
+}
+
+/* ===== Actions ===== */
+.manager-actions {
+  display: flex;
+  gap: 0.8rem;
+}
+
+/* ===== Buttons ===== */
+.approve-btn,
+.reject-btn {
+  padding: 0.45rem 1.1rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.approve-btn {
+  background: #4caf50;
+  color: white;
+}
+
+.approve-btn:hover:not(:disabled) {
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.35);
+}
+
+.reject-btn {
+  background: #f44336;
+  color: white;
+}
+
+.reject-btn:hover:not(:disabled) {
+  box-shadow: 0 6px 16px rgba(244, 67, 54, 0.35);
+}
+
+.approve-btn:disabled,
+.reject-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===================== Tablets (≤ 900px) ===================== */
+@media (max-width: 900px) {
+  .manager-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
+
+  .manager-request-title {
+    font-size: 3rem;
+  }
+
+  .manager-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+/* ===================== Mobile (≤ 600px) ===================== */
+@media (max-width: 600px) {
+  .manager-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .manager-title {
+    font-size: 2.7rem;
+  }
+
+  .manager-card {
+    padding: 1.2rem;
+  }
+
+  .manager-request-title {
+    font-size: 3em;
+  }
+
+  .manager-info span {
+    font-size: 1rem;
+  }
+
+  .manager-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .approve-btn,
+  .reject-btn {
+    width: 100%;
+    padding: 0.6rem;
+    font-size: 0.95rem;
+  }
+}

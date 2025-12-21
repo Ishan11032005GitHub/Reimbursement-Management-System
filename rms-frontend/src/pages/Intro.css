@@ -1,0 +1,103 @@
+/* ===== Root Container ===== */
+.intro-container {
+  min-height: 100vh;
+  width: 100%;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(255, 128, 64, 0.15),
+      transparent 40%
+    ),
+    linear-gradient(
+      135deg,
+      #001BB7,
+      #0046FF
+    );
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: clamp(1rem, 4vw, 3rem);
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* ===== Logo Section ===== */
+.title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: clamp(1rem, 3vw, 2rem);
+}
+
+.title-image {
+  width: clamp(140px, 25vw, 260px);
+  height: auto;
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* ===== Subtitle ===== */
+.subtitle {
+  font-size: clamp(1rem, 2.2vw, 1.5rem);
+  color: #F5F1DC;
+  font-weight: 500;
+  margin-bottom: clamp(1.2rem, 4vw, 2.5rem);
+  letter-spacing: 0.4px;
+  opacity: 0.95;
+}
+
+/* ===== Buttons Wrapper ===== */
+.btn-group {
+  display: flex;
+  gap: clamp(0.75rem, 3vw, 1.5rem);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ===== Buttons ===== */
+.btn {
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  padding: clamp(0.65rem, 2vw, 0.95rem)
+           clamp(1.3rem, 4vw, 2.1rem);
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Primary CTA */
+.btn.primary {
+  background: #FF8040;
+  color: #001BB7;
+  box-shadow: 0 10px 25px rgba(255, 128, 64, 0.35);
+}
+
+.btn.primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 35px rgba(255, 128, 64, 0.45);
+}
+
+/* Secondary CTA */
+.btn.secondary {
+  background: transparent;
+  color: #F5F1DC;
+  border: 2px solid rgba(245, 241, 220, 0.7);
+}
+
+.btn.secondary:hover {
+  background: rgba(245, 241, 220, 0.15);
+}
+
+.title-image {
+  width: clamp(140px, 25vw, 260px);
+  height: auto;
+  border-radius: 999px; /* oval-friendly */
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  background: white; /* optional but recommended */
+  padding: 0.6rem 1.2rem; /* gives logo breathing room */
+}

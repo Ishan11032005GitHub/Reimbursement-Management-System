@@ -1,0 +1,91 @@
+/* Global safety reset (if not already present) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.auth-page {
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(180deg, #0f2a44, #1e88e5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* Card */
+.auth-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 420px;
+  padding: 32px 36px;
+  border-radius: 14px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+}
+
+/* Title */
+.auth-title {
+  text-align: center;
+  margin-bottom: 24px;
+  color: #0f2a44;
+  font-weight: 600;
+}
+
+/* Inputs */
+.auth-card input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  border: 1px solid #cfd8dc;
+  font-size: 15px;
+}
+
+.auth-card input:focus {
+  outline: none;
+  border-color: #1e88e5;
+  box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.15);
+}
+
+/* Login Button */
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  background: #1e88e5;
+  color: #ffffff;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.login-btn:hover:not(:disabled) {
+  background: #1565c0;
+}
+
+.login-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Signup text */
+.signup-text {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 14px;
+  color: #546e7a;
+}
+
+.signup-text a {
+  color: #1e88e5;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.signup-text a:hover {
+  text-decoration: underline;
+}

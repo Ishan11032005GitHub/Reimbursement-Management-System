@@ -1,0 +1,118 @@
+/* ===== Container ===== */
+.create-container {
+  padding: 2.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ===== Title ===== */
+.create-title {
+  font-size: 3rem;
+  color: #001BB7;
+  margin-bottom: 1.2rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* ===== Messages ===== */
+.error-msg {
+  color: #c62828;
+  margin-bottom: 0.8rem;
+  font-weight: 500;
+}
+
+.success-msg {
+  color: #2e7d32;
+  margin-bottom: 0.8rem;
+  font-weight: 500;
+}
+
+/* ===== Card ===== */
+.create-card {
+  background: lab(85.13% -10.78 -15.89 / 0.364);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* ===== Field ===== */
+.field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.25rem;
+}
+
+.field input {
+  padding: 0.65rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+}
+
+.field input:focus {
+  border-color: #0046FF;
+  box-shadow: 0 0 0 2px rgba(0, 70, 255, 0.15);
+}
+
+/* ===== Button ===== */
+.create-card button {
+  margin-top: 0.8rem;
+  align-self: flex-end;
+  padding: 0.6rem 1.6rem;
+  border-radius: 10px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  background: #0046FF;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.create-card button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0, 70, 255, 0.35);
+}
+
+.create-card button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.create-subtitle {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+.create-subtitle {
+  font-size: 1.5rem;
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+
+@media (max-width: 493px) {
+  input{
+    width: 50vw;
+  }
+  .create-title{
+    font-size: 2.5rem;
+  }
+  .create-subtitle{
+    font-size: 1.2rem;
+  }
+}
+@media (max-width: 402px) {
+  input{
+    width: 42vw;
+  }
+}
+@media (max-width: 385px) {
+  input{
+    width: 40vw;
+  }
+}

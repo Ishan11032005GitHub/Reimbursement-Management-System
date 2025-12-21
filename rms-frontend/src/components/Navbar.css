@@ -1,0 +1,111 @@
+/* Layout */
+.navbar {
+  height: 60px;
+  background: linear-gradient(90deg, #0b1c2d, #0f2a44);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  color: #fff;
+  position: relative;
+}
+
+/* Logo */
+.logo {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Desktop Links */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-links a {
+  padding: 8px 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #cfd8e3;
+  transition: all 0.2s ease;
+}
+
+.nav-links a:hover {
+  background: #1e88e5;
+  color: #fff;
+}
+
+.nav-links a.active {
+  background: #1e88e5;
+  color: #fff;
+}
+
+/* Logout button – inverted hover logic */
+.logout-btn {
+  margin-left: 12px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid #1e88e5;
+  background: #1e88e5;   /* static = hover of others */
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: transparent;
+  color: #cfd8e3;
+}
+
+/* Hamburger */
+.hamburger {
+  display: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* Mobile Menu */
+.mobile-menu {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  width: 100%;
+  background: #0f2a44;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-menu a,
+.mobile-menu button {
+  padding: 14px 24px;
+  border: none;
+  background: none;
+  color: #cfd8e3;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mobile-menu a:hover,
+.mobile-menu button:hover {
+  background: #1e88e5;
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+
+  .hamburger {
+    display: block;
+  }
+}
+
+.logo-img {
+  height: 108px;
+  object-fit: contain;
+  cursor: pointer;
+}
