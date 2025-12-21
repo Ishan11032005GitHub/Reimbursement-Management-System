@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api"
+  baseURL: "https://reimbursement-management-system.onrender.com/api"
 });
 
 api.interceptors.request.use(config => {
