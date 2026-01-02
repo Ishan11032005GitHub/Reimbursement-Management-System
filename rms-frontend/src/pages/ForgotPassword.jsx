@@ -1,14 +1,18 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import "./Login.css";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+if (!API_URL) {
+  throw new Error("VITE_API_URL is not defined");
+}
+
 export default function ForgotPassword() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [resetUrl, setResetUrl] = useState(null); // DEV only
 
   const submit = async (e) => {
     e.preventDefault();
@@ -23,9 +27,7 @@ export default function ForgotPassword() {
 
       const res = await fetch(`${API_URL}/api/auth/forgot-password`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
       });
 
@@ -35,13 +37,23 @@ export default function ForgotPassword() {
         throw new Error(data.message || "Request failed");
       }
 
-      toast.success("If account exists, reset link generated");
-
-      // DEV ONLY: backend returns resetUrl
+      // DEV MODE: backend gives resetUrl
       if (data.resetUrl) {
-        setResetUrl(data.resetUrl);
-        console.warn("RESET LINK (DEV):", data.resetUrl);
+        const url = new URL(data.resetUrl);
+        const token = url.searchParams.get("token");
+
+        if (!token) {
+          throw new Error("Invalid reset token");
+        }
+
+        // 🔥 Directly open reset-password page
+        navigate(`/reset-password?token=${token}`);
+        return;
       }
+
+      // PROD behavior (no email yet)
+      toast.success("If account exists, you will receive reset instructions");
+
     } catch (err) {
       toast.error(err.message || "Something went wrong");
     } finally {
@@ -63,21 +75,11 @@ export default function ForgotPassword() {
         />
 
         <button className="login-btn" disabled={loading}>
-          {loading ? "Sending..." : "Generate Reset Link"}
+          {loading ? "Processing..." : "Continue"}
         </button>
 
-        {/* DEV ONLY: show reset link */}
-        {resetUrl && (
-          <p className="signup-text" style={{ wordBreak: "break-all" }}>
-            <strong>DEV reset link:</strong>
-            <br />
-            <a href={resetUrl}>{resetUrl}</a>
-          </p>
-        )}
-
         <p className="signup-text">
-          Remembered your password?{" "}
-          <Link to="/login">Go back</Link>
+          <Link to="/login">Back to login</Link>
         </p>
       </form>
     </div>
