@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import "./Login.css";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = "https://reimbursement-management-system.onrender.com/api";
 
 if (!API_URL) {
   throw new Error("VITE_API_URL is not defined");
