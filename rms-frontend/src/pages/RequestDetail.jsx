@@ -79,26 +79,27 @@ export default function RequestDetail() {
 
       <div className="request-detail-container">
         <div className="request-card">
-          {/* ===== TITLE ===== */}
-          <h2 className="request-detail-title">
-            {edit ? (
-              <input
-                value={form.title}
-                onChange={(e) =>
-                  setForm({ ...form, title: e.target.value })
-                }
-              />
-            ) : (
-              req.title
-            )}
-          </h2>
+          {/* HEADER */}
+          <div className="request-header">
+            <h2 className="request-detail-title">
+              {edit ? (
+                <input
+                  value={form.title}
+                  onChange={(e) =>
+                    setForm({ ...form, title: e.target.value })
+                  }
+                />
+              ) : (
+                req.title
+              )}
+            </h2>
 
-          {/* ===== STATUS ===== */}
-          <span className={`status-badge ${statusClass(req.status)}`}>
-            {req.status}
-          </span>
+            <span className={`status-badge ${statusClass(req.status)}`}>
+              {req.status}
+            </span>
+          </div>
 
-          {/* ===== AMOUNT ===== */}
+          {/* FIELDS */}
           <div className="field">
             <label>Amount</label>
             {edit ? (
@@ -114,7 +115,6 @@ export default function RequestDetail() {
             )}
           </div>
 
-          {/* ===== CATEGORY ===== */}
           <div className="field">
             <label>Category</label>
             {edit ? (
@@ -129,7 +129,6 @@ export default function RequestDetail() {
             )}
           </div>
 
-          {/* ===== ATTACHMENT (FIXED) ===== */}
           <div className="field">
             <label>Attachment</label>
             {req.file_url ? (
@@ -146,7 +145,7 @@ export default function RequestDetail() {
             )}
           </div>
 
-          {/* ===== REJECTION DETAILS (FIXED) ===== */}
+          {/* REJECTION */}
           {req.status === "REJECTED" && (
             <div className="rejection-box">
               <p>
@@ -166,22 +165,16 @@ export default function RequestDetail() {
             </div>
           )}
 
-          {/* ===== ACTIONS ===== */}
+          {/* ACTIONS */}
           <div className="actions">
             {req.status === "DRAFT" &&
               req.created_by === user.id &&
               !edit && (
                 <>
-                  <button
-                    className="edit-btn"
-                    onClick={() => setEdit(true)}
-                  >
+                  <button className="edit-btn" onClick={() => setEdit(true)}>
                     Edit
                   </button>
-                  <button
-                    className="submit-btn"
-                    onClick={submit}
-                  >
+                  <button className="submit-btn" onClick={submit}>
                     Submit
                   </button>
                 </>
@@ -195,10 +188,7 @@ export default function RequestDetail() {
 
             {req.status === "MANAGER_APPROVED" &&
               req.created_by === user.id && (
-                <button
-                  className="save-btn"
-                  onClick={finalApprove}
-                >
+                <button className="save-btn" onClick={finalApprove}>
                   Final Approve
                 </button>
               )}

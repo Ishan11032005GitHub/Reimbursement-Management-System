@@ -52,7 +52,7 @@ export default function ForgotPassword() {
           type="email"
           placeholder="Email"
           value={email}
-          onChange={e => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           disabled={loading}
         />
 
@@ -60,7 +60,7 @@ export default function ForgotPassword() {
           type="password"
           placeholder="New password"
           value={password}
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           disabled={loading}
         />
 
@@ -68,7 +68,7 @@ export default function ForgotPassword() {
           type="password"
           placeholder="Confirm new password"
           value={confirm}
-          onChange={e => setConfirm(e.target.value)}
+          onChange={(e) => setConfirm(e.target.value)}
           disabled={loading}
         />
 
