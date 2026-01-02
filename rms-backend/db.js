@@ -1,24 +1,24 @@
 const mysql = require("mysql2");
-require("dotenv").config();
 
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
-  port: process.env.DB_PORT,        // 🔴 must be DB_PORT, not PORT
+  port: process.env.DB_PORT,        // ✅ CORRECT
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 
   ssl: {
-    rejectUnauthorized: false       // 🔴 REQUIRED for Aiven
+    rejectUnauthorized: true
   },
 
-  connectTimeout: 15000
+  connectTimeout: 20000
 });
 
 db.connect((err) => {
   if (err) {
-    console.error("❌ MySQL connection failed:", err);
-    process.exit(1);
+    console.error("❌ MySQL connection failed:", err.message);
+    // ❌ DO NOT EXIT — let Render retry
+    return;
   }
   console.log("✅ MySQL Connected");
 });

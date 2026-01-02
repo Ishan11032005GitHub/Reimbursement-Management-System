@@ -54,11 +54,20 @@ export default function Login() {
           disabled={loading}
         />
 
+        {/* Forgot password */}
+        <div style={{ textAlign: "right", marginBottom: "16px" }}>
+          <Link
+            to="/forgot-password"
+            style={{ fontSize: "14px", color: "#1e88e5", textDecoration: "none" }}
+          >
+            Forgot password?
+          </Link>
+        </div>
+
         <button className="login-btn" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
 
-        {/* Signup Redirect */}
         <p className="signup-text">
           Don’t have an account?{" "}
           <Link to="/signup">Create one</Link>

@@ -1,17 +1,19 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const db = require("../db");
 
 const router = express.Router();
 
-/* REGISTER */
+/* =========================
+   REGISTER
+========================= */
 router.post("/register", async (req, res) => {
   const { username, email, password, role } = req.body;
 
-  if (!username || !email || !password) {
+  if (!username || !email || !password)
     return res.status(400).json({ message: "Missing fields" });
-  }
 
   const safeRole = role === "MANAGER" ? "MANAGER" : "USER";
 
@@ -20,7 +22,7 @@ router.post("/register", async (req, res) => {
     [username, email],
     async (err, rows) => {
       if (err) return res.status(500).json({ message: "DB error" });
-      if (rows.length > 0)
+      if (rows.length)
         return res.status(409).json({ message: "User already exists" });
 
       const hash = await bcrypt.hash(password, 10);
@@ -29,7 +31,9 @@ router.post("/register", async (req, res) => {
         "INSERT INTO users (username, email, password_hash, role) VALUES (?, ?, ?, ?)",
         [username, email, hash, safeRole],
         (err) => {
-          if (err) return res.status(500).json({ message: "Insert failed" });
+          if (err)
+            return res.status(500).json({ message: "Insert failed" });
+
           res.status(201).json({ message: "User created" });
         }
       );
@@ -37,7 +41,9 @@ router.post("/register", async (req, res) => {
   );
 });
 
-/* LOGIN */
+/* =========================
+   LOGIN
+========================= */
 router.post("/login", (req, res) => {
   const { identifier, password } = req.body;
 
@@ -54,14 +60,19 @@ router.post("/login", (req, res) => {
 
       const user = rows[0];
       const match = await bcrypt.compare(password, user.password_hash);
+
       if (!match)
         return res.status(401).json({ message: "Invalid credentials" });
 
       const token = jwt.sign(
-  { id: user.id, role: user.role, username: user.username },
-  process.env.JWT_SECRET,
-  { expiresIn: "1d" }
-);
+        {
+          id: user.id,
+          role: user.role,
+          username: user.username
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" }
+      );
 
       res.json({
         token,
@@ -72,6 +83,99 @@ router.post("/login", (req, res) => {
           role: user.role
         }
       });
+    }
+  );
+});
+
+/* =========================
+   FORGOT PASSWORD
+========================= */
+router.post("/forgot-password", (req, res) => {
+  const { email } = req.body;
+
+  if (!email)
+    return res.status(400).json({ message: "Email required" });
+
+  db.query(
+    "SELECT id FROM users WHERE email = ?",
+    [email],
+    (err, rows) => {
+      // Always return same response (security)
+      if (err || !rows.length)
+        return res.json({
+          message: "If account exists, reset link sent"
+        });
+
+      const userId = rows[0].id;
+
+      const resetToken = crypto.randomBytes(32).toString("hex");
+
+      const tokenHash = crypto
+        .createHash("sha256")
+        .update(resetToken)
+        .digest("hex");
+
+      const expiry = new Date(Date.now() + 15 * 60 * 1000); // 15 min
+
+      db.query(
+        "UPDATE users SET reset_token_hash = ?, reset_token_expiry = ? WHERE id = ?",
+        [tokenHash, expiry, userId],
+        () => {
+          // DEV ONLY — replace with email sending
+          console.log("RESET TOKEN (DEV):", resetToken);
+
+          res.json({
+            message: "If account exists, reset link sent"
+          });
+        }
+      );
+    }
+  );
+});
+
+/* =========================
+   RESET PASSWORD
+========================= */
+router.post("/reset-password", async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  if (!token || !newPassword)
+    return res.status(400).json({ message: "Invalid request" });
+
+  const tokenHash = crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
+
+  db.query(
+    "SELECT id, reset_token_expiry FROM users WHERE reset_token_hash = ?",
+    [tokenHash],
+    async (err, rows) => {
+      if (err || !rows.length)
+        return res.status(400).json({
+          message: "Invalid or expired token"
+        });
+
+      const user = rows[0];
+
+      if (new Date(user.reset_token_expiry) < new Date())
+        return res.status(400).json({
+          message: "Token expired"
+        });
+
+      const newHash = await bcrypt.hash(newPassword, 10);
+
+      db.query(
+        `UPDATE users
+         SET password_hash = ?, reset_token_hash = NULL, reset_token_expiry = NULL
+         WHERE id = ?`,
+        [newHash, user.id],
+        () => {
+          res.json({
+            message: "Password reset successful"
+          });
+        }
+      );
     }
   );
 });

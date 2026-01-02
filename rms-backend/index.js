@@ -8,21 +8,30 @@ const managerRoutes = require("./routes/manager_routes");
 
 const app = express();
 
+/* ===== ENV SAFETY CHECK ===== */
 if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET missing");
 }
 
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
+/* ===== MIDDLEWARE ===== */
+app.use(
+  cors({
+    origin: true,
+    credentials: true
+  })
+);
+
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
+/* ===== ROUTES ===== */
 app.use("/api/auth", authRoutes);
 app.use("/api/requests", requestRoutes);
 app.use("/api/manager", managerRoutes);
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server running on port ${process.env.PORT}`);
+/* ===== SERVER ===== */
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });

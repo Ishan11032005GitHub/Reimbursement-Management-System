@@ -12,6 +12,8 @@ import RequestList from "./pages/RequestList";
 import RequestDetail from "./pages/RequestDetail";
 import ManagerRequests from "./pages/ManagerRequests";
 import OpenRequests from "./pages/OpenRequests";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -23,7 +25,8 @@ function App() {
           <Route path="/" element={<Intro />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           {/* Protected (User + Manager) */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
