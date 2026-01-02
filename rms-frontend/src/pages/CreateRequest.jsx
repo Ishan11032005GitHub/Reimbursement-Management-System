@@ -5,6 +5,14 @@ import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
 import "./CreateRequest.css";
 
+const categoryOptions = [
+  { value: "LOCAL TAXI CONVEYANCE", label: "Local Taxi Conveyance" },
+  { value: "DOMESTIC TRAVEL", label: "Domestic Travel" },
+  { value: "INTERNATIONAL TRAVEL", label: "International Travel" },
+  { value: "FOOD", label: "Food" },
+  { value: "MISCELLANEOUS", label: "Miscellaneous" }
+];
+
 export default function CreateRequest() {
   const navigate = useNavigate();
   const fileRef = useRef();
@@ -27,7 +35,7 @@ export default function CreateRequest() {
 
     await api.post("/requests", formData);
 
-    // ✅ RESET FORM
+    // RESET
     setTitle("");
     setAmount("");
     setDate("");
@@ -35,21 +43,43 @@ export default function CreateRequest() {
     setFile(null);
     if (fileRef.current) fileRef.current.value = "";
 
-    // ✅ REDIRECT
+    // REDIRECT
     navigate("/requests");
   };
 
   return (
     <>
       <Navbar />
-      <form onSubmit={submit}>
-        <input value={title} onChange={e => setTitle(e.target.value)} />
-        <input value={amount} onChange={e => setAmount(e.target.value)} />
-        <input type="date" value={date} onChange={e => setDate(e.target.value)} />
-        <Select value={category} onChange={setCategory} />
-        <input type="file" ref={fileRef} onChange={e => setFile(e.target.files[0])} />
-        <button>Create Request</button>
-      </form>
+
+      <div className="create-container">
+        <h2 className="create-title">Create Request</h2>
+
+        <form className="create-card" onSubmit={submit}>
+          <div className="form-grid">
+            <label>Title</label>
+            <input value={title} onChange={e => setTitle(e.target.value)} />
+
+            <label>Amount</label>
+            <input type="number" value={amount} onChange={e => setAmount(e.target.value)} />
+
+            <label>Date</label>
+            <input type="date" value={date} onChange={e => setDate(e.target.value)} />
+
+            <label>Category</label>
+            <Select
+              options={categoryOptions}
+              value={category}
+              onChange={setCategory}
+              className="select-input"
+            />
+
+            <label>File</label>
+            <input type="file" ref={fileRef} onChange={e => setFile(e.target.files[0])} />
+          </div>
+
+          <button className="create-btn">Create Request</button>
+        </form>
+      </div>
     </>
   );
 }
