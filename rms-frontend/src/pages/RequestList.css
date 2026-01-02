@@ -121,3 +121,98 @@
   color: #c62828;
   font-weight: 600;
 }
+
+.requestlist-container {
+  padding: 2.5rem;
+  max-width: 1000px;
+  margin: 80px auto 0 auto;
+}
+
+.requestlist-title {
+  font-size: 3rem;
+  color: #001BB7;
+  margin-bottom: 1.5rem;
+}
+
+.empty-state {
+  color: #666;
+  font-style: italic;
+}
+
+.requestlist-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.requestlist-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.requestlist-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.requestlist-link {
+  font-weight: 700;
+  color: #001bb7;
+  text-decoration: none;
+  font-size: 1.6rem;
+  word-break: break-word;
+}
+
+.requestlist-link:hover {
+  text-decoration: underline;
+}
+
+.status-badge {
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-badge.draft {
+  background: rgba(158, 158, 158, 0.2);
+  color: #616161;
+}
+
+.status-badge.submitted {
+  background: rgba(255, 193, 7, 0.25);
+  color: #b58900;
+}
+
+.status-badge.approved {
+  background: rgba(76, 175, 80, 0.25);
+  color: #2e7d32;
+}
+
+.status-badge.rejected {
+  background: rgba(244, 67, 54, 0.25);
+  color: #c62828;
+}
+
+.requestlist-rejected-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #c62828;
+  font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  .requestlist-link {
+    font-size: 2.2rem;
+  }
+
+  .status-badge {
+    font-size: 1.4rem;
+  }
+}
