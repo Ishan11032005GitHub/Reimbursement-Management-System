@@ -1,13 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import api from "../api/axios";
 import "./Login.css";
-
-const API_URL = "https://reimbursement-management-system.onrender.com";
-
-if (!API_URL) {
-  throw new Error("VITE_API_URL is not defined");
-}
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -31,28 +26,18 @@ export default function ForgotPassword() {
     try {
       setLoading(true);
 
-      const res = await fetch(`${API_URL}/api/auth/dev-reset-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          newPassword: password
-        })
+      await api.post("/auth/dev-reset-password", {
+        email,
+        newPassword: password
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Reset failed");
-      }
-
-      toast.success("Password reset successful (DEV)");
+      toast.success("Password reset successful");
 
       setEmail("");
       setPassword("");
       setConfirm("");
     } catch (err) {
-      toast.error(err.message || "Something went wrong");
+      toast.error(err.response?.data?.message || "Reset failed");
     } finally {
       setLoading(false);
     }
@@ -67,7 +52,7 @@ export default function ForgotPassword() {
           type="email"
           placeholder="Email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={e => setEmail(e.target.value)}
           disabled={loading}
         />
 
@@ -75,7 +60,7 @@ export default function ForgotPassword() {
           type="password"
           placeholder="New password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={e => setPassword(e.target.value)}
           disabled={loading}
         />
 
@@ -83,7 +68,7 @@ export default function ForgotPassword() {
           type="password"
           placeholder="Confirm new password"
           value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
+          onChange={e => setConfirm(e.target.value)}
           disabled={loading}
         />
 
