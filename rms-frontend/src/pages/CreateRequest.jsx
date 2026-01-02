@@ -24,28 +24,28 @@ export default function CreateRequest() {
   const [file, setFile] = useState(null);
 
   const submit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("amount", amount);
-    formData.append("date", date);
-    formData.append("category", category.value);
-    if (file) formData.append("file", file);
+  if (!title || !amount || !date || !category) return;
 
-    await api.post("/requests", formData);
+  const formData = new FormData();
+  formData.append("title", title);
+  formData.append("amount", amount);
+  formData.append("date", date);
+  formData.append("category", category.value);
+  if (file) formData.append("file", file);
 
-    // RESET
-    setTitle("");
-    setAmount("");
-    setDate("");
-    setCategory(null);
-    setFile(null);
-    if (fileRef.current) fileRef.current.value = "";
+  await api.post("/requests", formData);
 
-    // REDIRECT
-    navigate("/requests");
-  };
+  setTitle("");
+  setAmount("");
+  setDate("");
+  setCategory(null);
+  setFile(null);
+  if (fileRef.current) fileRef.current.value = "";
+
+  navigate("/requests");
+};
 
   return (
     <>

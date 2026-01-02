@@ -255,3 +255,25 @@ router.get("/summary", auth, (req, res) => {
     }
   );
 });
+
+router.get("/summary", auth, (req, res) => {
+  db.query(
+    `
+    SELECT status, COUNT(*) as count
+    FROM requests
+    WHERE created_by = ?
+    GROUP BY status
+    `,
+    [req.user.id],
+    (err, rows) => {
+      if (err) return res.status(500).json({ message: "DB error" });
+
+      const summary = {};
+      rows.forEach(r => {
+        summary[r.status] = r.count;
+      });
+
+      res.json(summary);
+    }
+  );
+});

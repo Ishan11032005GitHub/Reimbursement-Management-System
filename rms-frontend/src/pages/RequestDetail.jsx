@@ -11,22 +11,25 @@ export default function RequestDetail() {
   const navigate = useNavigate();
 
   const [req, setReq] = useState(null);
-  const [form, setForm] = useState({});
   const [edit, setEdit] = useState(false);
+  const [form, setForm] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    api.get(`/requests/${id}`)
-      .then(res => {
+    if (!id) return;
+
+    api
+      .get(`/requests/${id}`)
+      .then((res) => {
         setReq(res.data);
         setForm(res.data);
       })
-      .catch(() => setError("Failed to load request"))
+      .catch(() => setError("Request not found"))
       .finally(() => setLoading(false));
   }, [id]);
 
-  const statusClass = s =>
+  const statusClass = (s) =>
     (s || "").toLowerCase().replace(/_/g, "-");
 
   const submit = async () => {
@@ -50,8 +53,15 @@ export default function RequestDetail() {
     navigate("/requests");
   };
 
-  if (loading) return <p className="page-loading">Loading…</p>;
-  if (error) return <p className="error-msg">{error}</p>;
+  if (loading) return <p className="page-loading">Loading...</p>;
+
+  if (error)
+    return (
+      <>
+        <Navbar />
+        <p className="error-msg">{error}</p>
+      </>
+    );
 
   return (
     <>
@@ -59,14 +69,17 @@ export default function RequestDetail() {
 
       <div className="request-detail-container">
         <div className="request-card">
-
-          <h2>
+          <h2 className="request-detail-title">
             {edit ? (
               <input
                 value={form.title}
-                onChange={e => setForm({ ...form, title: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, title: e.target.value })
+                }
               />
-            ) : req.title}
+            ) : (
+              req.title
+            )}
           </h2>
 
           <span className={`status-badge ${statusClass(req.status)}`}>
@@ -79,44 +92,51 @@ export default function RequestDetail() {
               <input
                 type="number"
                 value={form.amount}
-                onChange={e => setForm({ ...form, amount: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, amount: e.target.value })
+                }
               />
-            ) : <p>₹{req.amount}</p>}
+            ) : (
+              <p>₹{req.amount}</p>
+            )}
           </div>
 
           <div className="field">
             <label>Category</label>
-            {edit ? (
-              <input
-                value={form.category}
-                onChange={e => setForm({ ...form, category: e.target.value })}
-              />
-            ) : <p>{req.category}</p>}
+            <p>{req.category}</p>
           </div>
 
           <div className="field">
             <label>Attachment</label>
             {req.file_url ? (
-              <a href={req.file_url} target="_blank" rel="noreferrer">
+              <a
+                href={req.file_url}
+                target="_blank"
+                rel="noreferrer"
+                className="file-link"
+              >
                 View uploaded file
               </a>
-            ) : <p>No attachment</p>}
+            ) : (
+              <p>No attachment</p>
+            )}
           </div>
 
           {req.status === "REJECTED" && (
             <div className="rejection-box">
-              <p><b>Rejected by:</b> {req.reviewed_by_username || "Manager"}</p>
-              <p><b>Comment:</b> {req.manager_comment || "No comment"}</p>
+              <p><b>Comment:</b> {req.manager_comment || "—"}</p>
             </div>
           )}
 
           <div className="actions">
-            {req.status === "DRAFT" && req.created_by === user.id && !edit && (
-              <>
-                <button onClick={() => setEdit(true)}>Edit</button>
-                <button onClick={submit}>Submit</button>
-              </>
-            )}
+            {req.status === "DRAFT" &&
+              req.created_by === user.id &&
+              !edit && (
+                <>
+                  <button onClick={() => setEdit(true)}>Edit</button>
+                  <button onClick={submit}>Submit</button>
+                </>
+              )}
 
             {edit && <button onClick={saveEdit}>Save</button>}
 
