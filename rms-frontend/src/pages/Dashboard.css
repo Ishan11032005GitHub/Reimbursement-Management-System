@@ -54,3 +54,20 @@
   font-size: 1.25rem;
   color: #555;
 }
+
+.chart-wrapper {
+  margin-top: 1.5rem;
+  width: 100%;
+}
+
+.chart-title {
+  text-align: center;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.dashboard-note {
+  margin-top: 1rem;
+  font-style: italic;
+  color: #666;
+}

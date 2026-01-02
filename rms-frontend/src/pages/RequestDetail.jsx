@@ -17,14 +17,18 @@ export default function RequestDetail() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    api.get(`/requests/${id}`)
-      .then(res => {
+    api
+      .get(`/requests/${id}`)
+      .then((res) => {
         setReq(res.data);
         setForm(res.data);
       })
       .catch(() => setError("Failed to load request"))
       .finally(() => setLoading(false));
   }, [id]);
+
+  const statusClass = (s) =>
+    (s || "").toLowerCase().replace(/_/g, "-");
 
   const submit = async () => {
     try {
@@ -37,7 +41,12 @@ export default function RequestDetail() {
 
   const saveEdit = async () => {
     try {
-      await api.put(`/requests/${id}`, form);
+      await api.put(`/requests/${id}`, {
+        title: form.title,
+        amount: form.amount,
+        category: form.category,
+        date: form.date
+      });
       setEdit(false);
       navigate(0);
     } catch {
@@ -54,7 +63,7 @@ export default function RequestDetail() {
     }
   };
 
-  if (loading) return <p>Loading…</p>;
+  if (loading) return <p className="page-loading">Loading…</p>;
 
   if (error)
     return (
@@ -70,57 +79,113 @@ export default function RequestDetail() {
 
       <div className="request-detail-container">
         <div className="request-card">
+          {/* ===== TITLE ===== */}
           <h2 className="request-detail-title">
             {edit ? (
               <input
                 value={form.title}
-                onChange={e => setForm({ ...form, title: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, title: e.target.value })
+                }
               />
             ) : (
               req.title
             )}
           </h2>
 
-          <span className={`status-badge ${req.status.toLowerCase()}`}>
+          {/* ===== STATUS ===== */}
+          <span className={`status-badge ${statusClass(req.status)}`}>
             {req.status}
           </span>
 
+          {/* ===== AMOUNT ===== */}
           <div className="field">
             <label>Amount</label>
             {edit ? (
               <input
                 type="number"
                 value={form.amount}
-                onChange={e => setForm({ ...form, amount: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, amount: e.target.value })
+                }
               />
             ) : (
               <p>₹{req.amount}</p>
             )}
           </div>
 
+          {/* ===== CATEGORY ===== */}
           <div className="field">
             <label>Category</label>
             {edit ? (
               <input
                 value={form.category}
-                onChange={e => setForm({ ...form, category: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, category: e.target.value })
+                }
               />
             ) : (
               <p>{req.category}</p>
             )}
           </div>
 
-          <div className="actions">
-            {req.status === "DRAFT" && req.created_by === user.id && !edit && (
-              <>
-                <button className="edit-btn" onClick={() => setEdit(true)}>
-                  Edit
-                </button>
-                <button className="submit-btn" onClick={submit}>
-                  Submit
-                </button>
-              </>
+          {/* ===== ATTACHMENT (FIXED) ===== */}
+          <div className="field">
+            <label>Attachment</label>
+            {req.file_url ? (
+              <a
+                href={req.file_url}
+                target="_blank"
+                rel="noreferrer"
+                className="file-link"
+              >
+                View uploaded file
+              </a>
+            ) : (
+              <p>No attachment</p>
             )}
+          </div>
+
+          {/* ===== REJECTION DETAILS (FIXED) ===== */}
+          {req.status === "REJECTED" && (
+            <div className="rejection-box">
+              <p>
+                <b>Rejected by:</b>{" "}
+                {req.reviewed_by_username || "Manager"}
+              </p>
+              <p>
+                <b>Rejected at:</b>{" "}
+                {req.reviewed_at
+                  ? new Date(req.reviewed_at).toLocaleString()
+                  : "—"}
+              </p>
+              <p>
+                <b>Comment:</b>{" "}
+                {req.manager_comment || "No comment"}
+              </p>
+            </div>
+          )}
+
+          {/* ===== ACTIONS ===== */}
+          <div className="actions">
+            {req.status === "DRAFT" &&
+              req.created_by === user.id &&
+              !edit && (
+                <>
+                  <button
+                    className="edit-btn"
+                    onClick={() => setEdit(true)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="submit-btn"
+                    onClick={submit}
+                  >
+                    Submit
+                  </button>
+                </>
+              )}
 
             {edit && (
               <button className="save-btn" onClick={saveEdit}>
@@ -130,7 +195,10 @@ export default function RequestDetail() {
 
             {req.status === "MANAGER_APPROVED" &&
               req.created_by === user.id && (
-                <button className="save-btn" onClick={finalApprove}>
+                <button
+                  className="save-btn"
+                  onClick={finalApprove}
+                >
                   Final Approve
                 </button>
               )}

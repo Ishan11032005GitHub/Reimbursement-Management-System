@@ -92,3 +92,32 @@
   background: rgba(244, 67, 54, 0.25);
   color: #c62828;
 }
+
+.requestlist-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.1);
+}
+
+.requestlist-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap; /* IMPORTANT for mobile */
+}
+
+.requestlist-link {
+  font-weight: 700;
+  color: #001bb7;
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.requestlist-rejected-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #c62828;
+  font-weight: 600;
+}

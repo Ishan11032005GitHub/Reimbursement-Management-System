@@ -8,8 +8,12 @@ export default function RequestList() {
   const [list, setList] = useState([]);
 
   useEffect(() => {
-  api.get("/requests").then(res => setList(res.data));
-}, []);
+    api.get("/requests").then((res) => setList(res.data));
+  }, []);
+
+  // FIX: handle STATUS_WITH_UNDERSCORES
+  const statusClass = (s) =>
+    (s || "").toLowerCase().replace(/_/g, "-");
 
   return (
     <>
@@ -23,18 +27,29 @@ export default function RequestList() {
         )}
 
         <div className="requestlist-grid">
-          {list.map(r => (
+          {list.map((r) => (
             <div key={r.id} className="requestlist-card">
-              <Link
-                to={`/requests/${r.id}`}
-                className="requestlist-link"
-              >
-                {r.title}
-              </Link>
+              <div className="requestlist-main">
+                <Link
+                  to={`/requests/${r.id}`}
+                  className="requestlist-link"
+                >
+                  {r.title}
+                </Link>
 
-              <span className={`status-badge ${r.status.toLowerCase()}`}>
-                {r.status}
-              </span>
+                <span
+                  className={`status-badge ${statusClass(r.status)}`}
+                >
+                  {r.status}
+                </span>
+              </div>
+
+              {/* Optional hint for rejected */}
+              {r.status === "REJECTED" && (
+                <div className="requestlist-rejected-hint">
+                  Rejected — tap to see details
+                </div>
+              )}
             </div>
           ))}
         </div>

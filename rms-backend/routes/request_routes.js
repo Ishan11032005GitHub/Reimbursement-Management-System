@@ -7,9 +7,26 @@ const STATUS = require("../constants/status");
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
+function toPublicFileUrl(req, filePath) {
+  if (!filePath) return null;
+  // filePath usually: "uploads/abc123"
+  const normalized = filePath.replace(/\\/g, "/").replace(/^\/+/, "");
+  // serve via: /uploads/<filename>
+  if (normalized.startsWith("uploads/")) {
+    const name = normalized.substring("uploads/".length);
+    return `${req.protocol}://${req.get("host")}/uploads/${name}`;
+  }
+  // fallback (if already a public path)
+  return `${req.protocol}://${req.get("host")}/${normalized}`;
+}
+
 /* ===================== CREATE ===================== */
 router.post("/", auth, upload.single("file"), (req, res) => {
   const { title, amount, date, category } = req.body;
+
+  if (!title || !amount || !date || !category) {
+    return res.status(400).json({ message: "Missing fields" });
+  }
 
   db.query(
     `INSERT INTO requests 
@@ -37,6 +54,10 @@ router.post("/", auth, upload.single("file"), (req, res) => {
 /* ===================== UPDATE DRAFT ===================== */
 router.put("/:id", auth, (req, res) => {
   const { title, amount, date, category } = req.body;
+
+  if (!title || !amount || !date || !category) {
+    return res.status(400).json({ message: "Missing fields" });
+  }
 
   db.query(
     `UPDATE requests 
@@ -93,52 +114,85 @@ router.post("/:id/submit", auth, (req, res) => {
   );
 });
 
-/* ===================== LIST ===================== */
+/* ===================== LIST (MY REQUESTS ONLY) ===================== */
+/**
+ * IMPORTANT FIX:
+ * This endpoint MUST return only the logged-in user's requests.
+ * Managers should use /api/manager/requests for approvals.
+ * This fixes: "user ke req manager ki my req me dikh rhi"
+ */
 router.get("/", auth, (req, res) => {
-  let query = `
-    SELECT r.*, u.username
+  db.query(
+    `
+    SELECT 
+      r.*,
+      u.username AS created_by_username,
+      ru.username AS reviewed_by_username
     FROM requests r
     JOIN users u ON r.created_by = u.id
-  `;
-  const params = [];
-
-  if (req.user.role === "USER") {
-    query += " WHERE r.created_by=?";
-    params.push(req.user.id);
-  }
-
-  query += " ORDER BY r.created_at DESC";
-
-  db.query(query, params, (err, rows) => {
-    if (err) {
-      console.error("FETCH REQUESTS ERROR:", err);
-      return res.status(500).json({ message: "DB error" });
-    }
-    res.json(rows);
-  });
-});
-
-/* ===================== DETAILS ===================== */
-router.get("/:id", auth, (req, res) => {
-  db.query(
-    `SELECT r.*, u.username
-     FROM requests r
-     JOIN users u ON r.created_by = u.id
-     WHERE r.id=?`,
-    [req.params.id],
+    LEFT JOIN users ru ON r.reviewed_by = ru.id
+    WHERE r.created_by = ?
+    ORDER BY r.created_at DESC
+    `,
+    [req.user.id],
     (err, rows) => {
       if (err) {
-        console.error("FETCH REQUEST ERROR:", err);
+        console.error("FETCH REQUESTS ERROR:", err);
         return res.status(500).json({ message: "DB error" });
       }
 
-      if (!rows || rows.length === 0) {
-        return res.status(404).json({ message: "Not found" });
-      }
+      const mapped = rows.map((r) => ({
+        ...r,
+        file_url: toPublicFileUrl(req, r.file_path)
+      }));
 
-      res.json(rows[0]);
+      res.json(mapped);
     }
   );
+});
+
+/* ===================== DETAILS ===================== */
+/**
+ * IMPORTANT FIX:
+ * USER can only view their own request
+ * MANAGER can view any request (for review)
+ */
+router.get("/:id", auth, (req, res) => {
+  const id = req.params.id;
+
+  let sql = `
+    SELECT 
+      r.*,
+      u.username AS created_by_username,
+      ru.username AS reviewed_by_username
+    FROM requests r
+    JOIN users u ON r.created_by = u.id
+    LEFT JOIN users ru ON r.reviewed_by = ru.id
+    WHERE r.id = ?
+  `;
+  const params = [id];
+
+  if (req.user.role === "USER") {
+    sql += " AND r.created_by = ?";
+    params.push(req.user.id);
+  }
+
+  db.query(sql, params, (err, rows) => {
+    if (err) {
+      console.error("FETCH REQUEST ERROR:", err);
+      return res.status(500).json({ message: "DB error" });
+    }
+
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    const r = rows[0];
+    res.json({
+      ...r,
+      file_url: toPublicFileUrl(req, r.file_path)
+    });
+  });
 });
 
 /* ===================== FINAL APPROVE ===================== */

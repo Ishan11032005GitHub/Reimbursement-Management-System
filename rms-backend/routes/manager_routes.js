@@ -29,16 +29,16 @@ router.get("/requests", auth, role("MANAGER"), (req, res) => {
 router.post("/requests/:id/approve", auth, role("MANAGER"), (req, res) => {
   db.query(
     `UPDATE requests 
-     SET status = ? 
+     SET status = ?, reviewed_by = ?, reviewed_at = NOW(), manager_comment = NULL
      WHERE id = ? AND status = ?`,
-    [STATUS.MANAGER_APPROVED, req.params.id, STATUS.SUBMITTED],
+    [STATUS.MANAGER_APPROVED, req.user.id, req.params.id, STATUS.SUBMITTED],
     (err, result) => {
       if (err) {
         console.error("APPROVE ERROR:", err);
         return res.status(500).json({ message: "DB error" });
       }
 
-      if (result.affectedRows === 0) {
+      if (!result || result.affectedRows === 0) {
         return res.status(400).json({ message: "Invalid transition" });
       }
 
@@ -47,20 +47,26 @@ router.post("/requests/:id/approve", auth, role("MANAGER"), (req, res) => {
   );
 });
 
-/* REJECT */
+/* REJECT (comment mandatory) */
 router.post("/requests/:id/reject", auth, role("MANAGER"), (req, res) => {
+  const { comment } = req.body;
+
+  if (!comment || comment.trim().length < 3) {
+    return res.status(400).json({ message: "Rejection comment is required" });
+  }
+
   db.query(
     `UPDATE requests 
-     SET status = ? 
+     SET status = ?, reviewed_by = ?, reviewed_at = NOW(), manager_comment = ?
      WHERE id = ? AND status = ?`,
-    [STATUS.REJECTED, req.params.id, STATUS.SUBMITTED],
+    [STATUS.REJECTED, req.user.id, comment.trim(), req.params.id, STATUS.SUBMITTED],
     (err, result) => {
       if (err) {
         console.error("REJECT ERROR:", err);
         return res.status(500).json({ message: "DB error" });
       }
 
-      if (result.affectedRows === 0) {
+      if (!result || result.affectedRows === 0) {
         return res.status(400).json({ message: "Invalid transition" });
       }
 

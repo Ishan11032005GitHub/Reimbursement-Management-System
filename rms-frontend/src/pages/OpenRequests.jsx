@@ -8,13 +8,15 @@ export default function OpenRequests() {
   const [list, setList] = useState([]);
 
   useEffect(() => {
-  api.get("/requests").then(res => {
-    const open = res.data.filter(r =>
-      ["SUBMITTED", "MANAGER_APPROVED"].includes(r.status)
-    );
-    setList(open);
-  });
-}, []);
+    api.get("/requests").then((res) => {
+      const open = res.data.filter((r) =>
+        ["SUBMITTED", "MANAGER_APPROVED"].includes(r.status)
+      );
+      setList(open);
+    });
+  }, []);
+
+  const statusClass = (s) => (s || "").toLowerCase().replace(/_/g, "-");
 
   return (
     <>
@@ -28,13 +30,13 @@ export default function OpenRequests() {
         )}
 
         <div className="request-list">
-          {list.map(r => (
+          {list.map((r) => (
             <div key={r.id} className="request-card">
               <Link to={`/requests/${r.id}`} className="request-title">
                 {r.title}
               </Link>
 
-              <span className={`status-badge ${r.status.toLowerCase()}`}>
+              <span className={`status-badge ${statusClass(r.status)}`}>
                 {r.status}
               </span>
             </div>
