@@ -100,10 +100,10 @@ router.post("/forgot-password", (req, res) => {
     "SELECT id FROM users WHERE email = ?",
     [email],
     (err, rows) => {
-      // Always return same response (security)
+      // Same response to prevent enumeration
       if (err || !rows.length)
         return res.json({
-          message: "If account exists, reset link sent"
+          message: "If account exists, reset link generated"
         });
 
       const userId = rows[0].id;
@@ -115,23 +115,25 @@ router.post("/forgot-password", (req, res) => {
         .update(resetToken)
         .digest("hex");
 
-      const expiry = new Date(Date.now() + 15 * 60 * 1000); // 15 min
+      const expiry = new Date(Date.now() + 15 * 60 * 1000);
 
       db.query(
         "UPDATE users SET reset_token_hash = ?, reset_token_expiry = ? WHERE id = ?",
         [tokenHash, expiry, userId],
         () => {
-          // DEV ONLY — replace with email sending
-          console.log("RESET TOKEN (DEV):", resetToken);
+          const resetUrl = `http://localhost:5173/reset-password?token=${resetToken}`;
 
+          // DEV ONLY — visible reset link
           res.json({
-            message: "If account exists, reset link sent"
+            message: "Reset link generated (DEV)",
+            resetUrl
           });
         }
       );
     }
   );
 });
+
 
 /* =========================
    RESET PASSWORD
