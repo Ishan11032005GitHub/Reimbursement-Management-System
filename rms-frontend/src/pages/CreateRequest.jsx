@@ -15,7 +15,7 @@ const categoryOptions = [
 
 export default function CreateRequest() {
   const navigate = useNavigate();
-  const fileRef = useRef();
+  const fileRef = useRef(null);
 
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
@@ -23,61 +23,131 @@ export default function CreateRequest() {
   const [category, setCategory] = useState(null);
   const [file, setFile] = useState(null);
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const validate = () => {
+    if (!title.trim()) return "Title is required";
+    if (!amount || Number(amount) <= 0) return "Amount must be greater than 0";
+    if (!date) return "Date is required";
+    if (!category) return "Category is required";
+    return null;
+  };
+
+  const resetForm = () => {
+    setTitle("");
+    setAmount("");
+    setDate("");
+    setCategory(null);
+    setFile(null);
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
   const submit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
+    setError("");
+    setSuccess("");
 
-  if (!title || !amount || !date || !category) return;
+    const msg = validate();
+    if (msg) {
+      setError(msg);
+      return;
+    }
 
-  const formData = new FormData();
-  formData.append("title", title);
-  formData.append("amount", amount);
-  formData.append("date", date);
-  formData.append("category", category.value);
-  if (file) formData.append("file", file);
+    try {
+      setLoading(true);
 
-  await api.post("/requests", formData);
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("amount", amount);
+      formData.append("date", date);
+      formData.append("category", category.value);
+      if (file) formData.append("file", file);
 
-  setTitle("");
-  setAmount("");
-  setDate("");
-  setCategory(null);
-  setFile(null);
-  if (fileRef.current) fileRef.current.value = "";
+      const res = await api.post("/requests", formData);
 
-  navigate("/requests");
-};
+      resetForm();
+      setSuccess("Request created successfully");
+
+      // ✅ open the created request directly
+      if (res?.data?.id) {
+        navigate(`/requests/${res.data.id}`);
+      } else {
+        navigate("/requests");
+      }
+    } catch (e2) {
+      setError(e2?.response?.data?.message || "Failed to create request");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
       <Navbar />
 
       <div className="create-container">
-        <h2 className="create-title">Create Request</h2>
+        <h2 className="create-title">CREATE REQUEST</h2>
+        <p className="create-subtitle">
+          Fill in the details below to submit a new reimbursement request.
+        </p>
+
+        {error && <p className="error-msg">{error}</p>}
+        {success && <p className="success-msg">{success}</p>}
 
         <form className="create-card" onSubmit={submit}>
           <div className="form-grid">
             <label>Title</label>
-            <input value={title} onChange={e => setTitle(e.target.value)} />
+            <input
+              value={title}
+              placeholder="Enter Title"
+              onChange={(e) => setTitle(e.target.value)}
+              disabled={loading}
+            />
 
             <label>Amount</label>
-            <input type="number" value={amount} onChange={e => setAmount(e.target.value)} />
+            <input
+              type="number"
+              placeholder="Enter Amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              disabled={loading}
+            />
 
             <label>Date</label>
-            <input type="date" value={date} onChange={e => setDate(e.target.value)} />
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              disabled={loading}
+            />
 
             <label>Category</label>
             <Select
+              className="select-input"
               options={categoryOptions}
               value={category}
               onChange={setCategory}
-              className="select-input"
+              isSearchable
+              isDisabled={loading}
             />
 
-            <label>File</label>
-            <input type="file" ref={fileRef} onChange={e => setFile(e.target.files[0])} />
+            <label>File upload</label>
+            <input
+              type="file"
+              ref={fileRef}
+              onChange={(e) => {
+                const f = e.target.files?.[0] || null;
+                setFile(f);
+              }}
+              disabled={loading}
+            />
           </div>
 
-          <button className="create-btn">Create Request</button>
+          <button className="create-btn" disabled={loading}>
+            {loading ? "Submitting..." : "Create Request"}
+          </button>
         </form>
       </div>
     </>

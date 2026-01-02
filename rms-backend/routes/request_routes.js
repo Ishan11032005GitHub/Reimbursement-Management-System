@@ -1,23 +1,41 @@
 const express = require("express");
 const multer = require("multer");
+const path = require("path");
+const crypto = require("crypto");
 const db = require("../db");
 const auth = require("../middleware/auth");
 const STATUS = require("../constants/status");
 
 const router = express.Router();
-const upload = multer({ dest: "uploads/" });
 
+/* ===================== MULTER (KEEP EXTENSION) ===================== */
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname || "").toLowerCase();
+    const safeExt = ext && ext.length <= 10 ? ext : ""; // avoid weird/extremely long extensions
+    const name = `${Date.now()}-${crypto.randomBytes(6).toString("hex")}${safeExt}`;
+    cb(null, name);
+  }
+});
+
+const upload = multer({ storage });
+
+/* ===================== URL HELPER (RENDER/PROXY SAFE) ===================== */
 function toPublicFileUrl(req, filePath) {
   if (!filePath) return null;
-  // filePath usually: "uploads/abc123"
-  const normalized = filePath.replace(/\\/g, "/").replace(/^\/+/, "");
-  // serve via: /uploads/<filename>
+
+  const normalized = String(filePath).replace(/\\/g, "/").replace(/^\/+/, "");
+  const protoHeader = req.headers["x-forwarded-proto"];
+  const proto = (protoHeader ? String(protoHeader) : req.protocol).split(",")[0].trim();
+  const host = req.get("x-forwarded-host") || req.get("host");
+
   if (normalized.startsWith("uploads/")) {
     const name = normalized.substring("uploads/".length);
-    return `${req.protocol}://${req.get("host")}/uploads/${name}`;
+    return `${proto}://${host}/uploads/${name}`;
   }
-  // fallback (if already a public path)
-  return `${req.protocol}://${req.get("host")}/${normalized}`;
+
+  return `${proto}://${host}/${normalized}`;
 }
 
 /* ===================== CREATE ===================== */
@@ -28,25 +46,24 @@ router.post("/", auth, upload.single("file"), (req, res) => {
     return res.status(400).json({ message: "Missing fields" });
   }
 
+  const filePath = req.file ? `uploads/${req.file.filename}` : null;
+
   db.query(
     `INSERT INTO requests 
      (title, amount, date, category, file_path, created_by, status)
      VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [
-      title,
-      amount,
-      date,
-      category,
-      req.file?.path || null,
-      req.user.id,
-      STATUS.DRAFT
-    ],
-    (err) => {
+    [title, amount, date, category, filePath, req.user.id, STATUS.DRAFT],
+    (err, result) => {
       if (err) {
         console.error("CREATE REQUEST ERROR:", err);
         return res.status(500).json({ message: "DB error" });
       }
-      res.status(201).json({ message: "Created" });
+
+      // IMPORTANT: return id so frontend can redirect to the request page
+      res.status(201).json({
+        message: "Created",
+        id: result.insertId
+      });
     }
   );
 });
@@ -63,15 +80,7 @@ router.put("/:id", auth, (req, res) => {
     `UPDATE requests 
      SET title=?, amount=?, date=?, category=?
      WHERE id=? AND created_by=? AND status=?`,
-    [
-      title,
-      amount,
-      date,
-      category,
-      req.params.id,
-      req.user.id,
-      STATUS.DRAFT
-    ],
+    [title, amount, date, category, req.params.id, req.user.id, STATUS.DRAFT],
     (err, result) => {
       if (err) {
         console.error("UPDATE REQUEST ERROR:", err);
@@ -93,12 +102,7 @@ router.post("/:id/submit", auth, (req, res) => {
     `UPDATE requests 
      SET status=? 
      WHERE id=? AND created_by=? AND status=?`,
-    [
-      STATUS.SUBMITTED,
-      req.params.id,
-      req.user.id,
-      STATUS.DRAFT
-    ],
+    [STATUS.SUBMITTED, req.params.id, req.user.id, STATUS.DRAFT],
     (err, result) => {
       if (err) {
         console.error("SUBMIT ERROR:", err);
@@ -114,13 +118,36 @@ router.post("/:id/submit", auth, (req, res) => {
   );
 });
 
+/* ===================== SUMMARY (FIX DASHBOARD) ===================== */
+router.get("/summary", auth, (req, res) => {
+  // user dashboard only
+  if (req.user.role !== "USER") {
+    return res.json({});
+  }
+
+  db.query(
+    `SELECT status, COUNT(*) as count
+     FROM requests
+     WHERE created_by = ?
+     GROUP BY status`,
+    [req.user.id],
+    (err, rows) => {
+      if (err) {
+        console.error("SUMMARY ERROR:", err);
+        return res.status(500).json({ message: "DB error" });
+      }
+
+      const out = {};
+      rows.forEach(r => {
+        out[r.status] = Number(r.count || 0);
+      });
+
+      res.json(out);
+    }
+  );
+});
+
 /* ===================== LIST (MY REQUESTS ONLY) ===================== */
-/**
- * IMPORTANT FIX:
- * This endpoint MUST return only the logged-in user's requests.
- * Managers should use /api/manager/requests for approvals.
- * This fixes: "user ke req manager ki my req me dikh rhi"
- */
 router.get("/", auth, (req, res) => {
   db.query(
     `
@@ -152,11 +179,6 @@ router.get("/", auth, (req, res) => {
 });
 
 /* ===================== DETAILS ===================== */
-/**
- * IMPORTANT FIX:
- * USER can only view their own request
- * MANAGER can view any request (for review)
- */
 router.get("/:id", auth, (req, res) => {
   const id = req.params.id;
 
@@ -203,12 +225,7 @@ router.post("/:id/final-approve", auth, (req, res) => {
      WHERE id = ?
        AND created_by = ?
        AND status = ?`,
-    [
-      STATUS.FINAL_APPROVED,
-      req.params.id,
-      req.user.id,
-      STATUS.MANAGER_APPROVED
-    ],
+    [STATUS.FINAL_APPROVED, req.params.id, req.user.id, STATUS.MANAGER_APPROVED],
     (err, result) => {
       if (err) {
         console.error("FINAL APPROVE ERROR:", err);
@@ -225,29 +242,3 @@ router.post("/:id/final-approve", auth, (req, res) => {
 });
 
 module.exports = router;
-
-/* ===================== SUMMARY (DASHBOARD) ===================== */
-router.get("/summary", auth, (req, res) => {
-  db.query(
-    `
-    SELECT status, COUNT(*) as count
-    FROM requests
-    WHERE created_by = ?
-    GROUP BY status
-    `,
-    [req.user.id],
-    (err, rows) => {
-      if (err) {
-        console.error("SUMMARY ERROR:", err);
-        return res.status(500).json({ message: "DB error" });
-      }
-
-      const summary = {};
-      rows.forEach(r => {
-        summary[r.status] = r.count;
-      });
-
-      res.json(summary);
-    }
-  );
-});

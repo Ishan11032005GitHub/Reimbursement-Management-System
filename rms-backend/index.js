@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const authRoutes = require("./routes/auth_routes");
 const requestRoutes = require("./routes/request_routes");
@@ -13,6 +14,9 @@ if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET missing");
 }
 
+/* ===== IMPORTANT FOR RENDER / PROXY (fixes wrong protocol in URLs) ===== */
+app.set("trust proxy", 1);
+
 /* ===== MIDDLEWARE ===== */
 app.use(
   cors({
@@ -22,7 +26,9 @@ app.use(
 );
 
 app.use(express.json());
-app.use("/uploads", express.static("uploads"));
+
+/* serve uploads */
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 /* ===== ROUTES ===== */
 app.use("/api/auth", authRoutes);
@@ -31,7 +37,6 @@ app.use("/api/manager", managerRoutes);
 
 /* ===== SERVER ===== */
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
