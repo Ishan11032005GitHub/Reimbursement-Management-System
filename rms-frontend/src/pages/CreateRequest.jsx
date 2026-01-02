@@ -52,9 +52,7 @@ export default function CreateRequest() {
       formData.append("category", category.value);
       if (file) formData.append("file", file);
 
-      await api.post("/requests", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-      });
+      await api.post("/requests", formData);
 
       setSuccess("Request created successfully");
       setTitle("");
@@ -79,63 +77,55 @@ export default function CreateRequest() {
           Fill in the details below to submit a new reimbursement request.
         </p>
 
-
         {error && <p className="error-msg">{error}</p>}
         {success && <p className="success-msg">{success}</p>}
 
         <form className="create-card" onSubmit={submit}>
-          <div className="field">
-            <label>Title : </label>
+          <div className="form-grid">
+            <label>Title</label>
             <input
               value={title}
               placeholder="Enter Title"
-              onChange={e => setTitle(e.target.value)}
+              onChange={(e) => setTitle(e.target.value)}
               disabled={loading}
             />
-          </div>
 
-          <div className="field">
-            <label>Amount : </label>
+            <label>Amount</label>
             <input
               type="number"
               placeholder="Enter Amount"
               value={amount}
-              onChange={e => setAmount(e.target.value)}
+              onChange={(e) => setAmount(e.target.value)}
               disabled={loading}
             />
-          </div>
 
-          <div className="field">
-            <label>Date : </label>
+            <label>Date</label>
             <input
               type="date"
               value={date}
-              onChange={e => setDate(e.target.value)}
+              onChange={(e) => setDate(e.target.value)}
               disabled={loading}
             />
-          </div>
 
-          <div className="field">
-            <label>Category (searchable)</label>
+            <label>Category</label>
             <Select
+              className="select-input"
               options={categoryOptions}
               value={category}
               onChange={setCategory}
               isSearchable
               isDisabled={loading}
             />
-          </div>
 
-          <div className="field">
             <label>File upload</label>
             <input
               type="file"
-              onChange={e => setFile(e.target.files[0])}
+              onChange={(e) => setFile(e.target.files[0])}
               disabled={loading}
             />
           </div>
 
-          <button disabled={loading}>
+          <button className="create-btn" disabled={loading}>
             {loading ? "Submitting..." : "Create Request"}
           </button>
         </form>
