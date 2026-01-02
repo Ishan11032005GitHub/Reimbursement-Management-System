@@ -11,8 +11,8 @@ export default function RequestDetail() {
   const navigate = useNavigate();
 
   const [req, setReq] = useState(null);
+  const [form, setForm] = useState(null);
   const [edit, setEdit] = useState(false);
-  const [form, setForm] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -23,7 +23,12 @@ export default function RequestDetail() {
       .get(`/requests/${id}`)
       .then((res) => {
         setReq(res.data);
-        setForm(res.data);
+        setForm({
+          title: res.data.title,
+          amount: res.data.amount,
+          category: res.data.category,
+          date: res.data.date
+        });
       })
       .catch(() => setError("Request not found"))
       .finally(() => setLoading(false));
@@ -33,27 +38,34 @@ export default function RequestDetail() {
     (s || "").toLowerCase().replace(/_/g, "-");
 
   const submit = async () => {
-    await api.post(`/requests/${id}/submit`);
-    navigate("/requests");
+    try {
+      await api.post(`/requests/${id}/submit`);
+      navigate("/requests");
+    } catch {
+      alert("Submit failed");
+    }
   };
 
   const saveEdit = async () => {
-    await api.put(`/requests/${id}`, {
-      title: form.title,
-      amount: form.amount,
-      category: form.category,
-      date: form.date
-    });
-    setEdit(false);
-    navigate(0);
+    try {
+      await api.put(`/requests/${id}`, form);
+      setEdit(false);
+      navigate(0);
+    } catch {
+      alert("Update failed");
+    }
   };
 
   const finalApprove = async () => {
-    await api.post(`/requests/${id}/final-approve`);
-    navigate("/requests");
+    try {
+      await api.post(`/requests/${id}/final-approve`);
+      navigate("/requests");
+    } catch {
+      alert("Final approve failed");
+    }
   };
 
-  if (loading) return <p className="page-loading">Loading...</p>;
+  if (loading) return <p className="page-loading">Loading…</p>;
 
   if (error)
     return (
@@ -124,7 +136,9 @@ export default function RequestDetail() {
 
           {req.status === "REJECTED" && (
             <div className="rejection-box">
-              <p><b>Comment:</b> {req.manager_comment || "—"}</p>
+              <p>
+                <b>Comment:</b> {req.manager_comment || "—"}
+              </p>
             </div>
           )}
 
@@ -142,7 +156,9 @@ export default function RequestDetail() {
 
             {req.status === "MANAGER_APPROVED" &&
               req.created_by === user.id && (
-                <button onClick={finalApprove}>Final Approve</button>
+                <button onClick={finalApprove}>
+                  Final Approve
+                </button>
               )}
           </div>
         </div>
