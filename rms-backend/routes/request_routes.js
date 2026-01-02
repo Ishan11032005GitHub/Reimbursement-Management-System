@@ -225,3 +225,33 @@ router.post("/:id/final-approve", auth, (req, res) => {
 });
 
 module.exports = router;
+
+/* ===================== SUMMARY (DASHBOARD) ===================== */
+router.get("/summary", auth, (req, res) => {
+  if (req.user.role !== "USER") {
+    return res.json({});
+  }
+
+  db.query(
+    `
+    SELECT status, COUNT(*) AS count
+    FROM requests
+    WHERE created_by = ?
+    GROUP BY status
+    `,
+    [req.user.id],
+    (err, rows) => {
+      if (err) {
+        console.error("SUMMARY ERROR:", err);
+        return res.status(500).json({ message: "DB error" });
+      }
+
+      const summary = {};
+      rows.forEach(r => {
+        summary[r.status] = r.count;
+      });
+
+      res.json(summary);
+    }
+  );
+});
