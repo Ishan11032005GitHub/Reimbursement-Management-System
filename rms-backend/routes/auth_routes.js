@@ -88,7 +88,7 @@ router.post("/login", (req, res) => {
 });
 
 /* =========================
-   FORGOT PASSWORD
+   FORGOT PASSWORD (UNCHANGED)
 ========================= */
 router.post("/forgot-password", (req, res) => {
   const { email } = req.body;
@@ -100,7 +100,6 @@ router.post("/forgot-password", (req, res) => {
     "SELECT id FROM users WHERE email = ?",
     [email],
     (err, rows) => {
-      // Same response to prevent enumeration
       if (err || !rows.length)
         return res.json({
           message: "If account exists, reset link generated"
@@ -123,7 +122,6 @@ router.post("/forgot-password", (req, res) => {
         () => {
           const resetUrl = `http://localhost:5173/reset-password?token=${resetToken}`;
 
-          // DEV ONLY — visible reset link
           res.json({
             message: "Reset link generated (DEV)",
             resetUrl
@@ -134,9 +132,8 @@ router.post("/forgot-password", (req, res) => {
   );
 });
 
-
 /* =========================
-   RESET PASSWORD
+   RESET PASSWORD (UNCHANGED)
 ========================= */
 router.post("/reset-password", async (req, res) => {
   const { token, newPassword } = req.body;
@@ -178,6 +175,41 @@ router.post("/reset-password", async (req, res) => {
           });
         }
       );
+    }
+  );
+});
+
+/* =========================
+   🔴 DEV RESET PASSWORD (NO TOKEN, NO EMAIL)
+   ONLY ADDITION — EMERGENCY USE
+========================= */
+router.post("/dev-reset-password", async (req, res) => {
+  if (process.env.NODE_ENV === "production") {
+    return res.status(403).json({ message: "Disabled in production" });
+  }
+
+  const { email, newPassword } = req.body;
+
+  if (!email || !newPassword) {
+    return res.status(400).json({ message: "Missing fields" });
+  }
+
+  if (newPassword.length < 8) {
+    return res.status(400).json({
+      message: "Password must be at least 8 characters"
+    });
+  }
+
+  const hash = await bcrypt.hash(newPassword, 10);
+
+  db.query(
+    "UPDATE users SET password_hash = ? WHERE email = ?",
+    [hash, email],
+    () => {
+      // Do NOT reveal whether user exists
+      res.json({
+        message: "If account exists, password has been reset (DEV)"
+      });
     }
   );
 });

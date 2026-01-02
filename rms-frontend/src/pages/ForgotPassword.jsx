@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import "./Login.css";
 
@@ -10,50 +10,47 @@ if (!API_URL) {
 }
 
 export default function ForgotPassword() {
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
 
   const submit = async (e) => {
     e.preventDefault();
 
-    if (!email) {
-      toast.error("Email is required");
+    if (!email || !password || !confirm) {
+      toast.error("All fields are required");
+      return;
+    }
+
+    if (password !== confirm) {
+      toast.error("Passwords do not match");
       return;
     }
 
     try {
       setLoading(true);
 
-      const res = await fetch(`${API_URL}/api/auth/forgot-password`, {
+      const res = await fetch(`${API_URL}/api/auth/dev-reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({
+          email,
+          newPassword: password
+        })
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || "Request failed");
+        throw new Error(data.message || "Reset failed");
       }
 
-      // DEV MODE: backend gives resetUrl
-      if (data.resetUrl) {
-        const url = new URL(data.resetUrl);
-        const token = url.searchParams.get("token");
+      toast.success("Password reset successful (DEV)");
 
-        if (!token) {
-          throw new Error("Invalid reset token");
-        }
-
-        // 🔥 Directly open reset-password page
-        navigate(`/reset-password?token=${token}`);
-        return;
-      }
-
-      // PROD behavior (no email yet)
-      toast.success("If account exists, you will receive reset instructions");
-
+      setEmail("");
+      setPassword("");
+      setConfirm("");
     } catch (err) {
       toast.error(err.message || "Something went wrong");
     } finally {
@@ -64,18 +61,34 @@ export default function ForgotPassword() {
   return (
     <div className="auth-page">
       <form className="auth-card" onSubmit={submit}>
-        <h2 className="auth-title">Forgot Password</h2>
+        <h2 className="auth-title">Reset Password</h2>
 
         <input
           type="email"
-          placeholder="Enter your email"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={loading}
         />
 
+        <input
+          type="password"
+          placeholder="New password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          disabled={loading}
+        />
+
+        <input
+          type="password"
+          placeholder="Confirm new password"
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          disabled={loading}
+        />
+
         <button className="login-btn" disabled={loading}>
-          {loading ? "Processing..." : "Continue"}
+          {loading ? "Resetting..." : "Reset Password"}
         </button>
 
         <p className="signup-text">
