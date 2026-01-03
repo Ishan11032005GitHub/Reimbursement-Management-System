@@ -13,12 +13,11 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"),
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname || "").toLowerCase();
-    const safeExt = ext && ext.length <= 10 ? ext : ""; // avoid weird/extremely long extensions
+    const safeExt = ext && ext.length <= 10 ? ext : "";
     const name = `${Date.now()}-${crypto.randomBytes(6).toString("hex")}${safeExt}`;
     cb(null, name);
   }
 });
-
 const upload = multer({ storage });
 
 /* ===================== URL HELPER (RENDER/PROXY SAFE) ===================== */
@@ -59,7 +58,6 @@ router.post("/", auth, upload.single("file"), (req, res) => {
         return res.status(500).json({ message: "DB error" });
       }
 
-      // IMPORTANT: return id so frontend can redirect to the request page
       res.status(201).json({
         message: "Created",
         id: result.insertId
@@ -118,9 +116,8 @@ router.post("/:id/submit", auth, (req, res) => {
   );
 });
 
-/* ===================== SUMMARY (FIX DASHBOARD) ===================== */
+/* ===================== SUMMARY ===================== */
 router.get("/summary", auth, (req, res) => {
-  // user dashboard only
   if (req.user.role !== "USER") {
     return res.json({});
   }
@@ -153,8 +150,9 @@ router.get("/", auth, (req, res) => {
     `
     SELECT 
       r.*,
+      r.reviewed_at AS responded_at,
       u.username AS created_by_username,
-      ru.username AS reviewed_by_username
+      ru.username AS responded_by_username
     FROM requests r
     JOIN users u ON r.created_by = u.id
     LEFT JOIN users ru ON r.reviewed_by = ru.id
@@ -185,8 +183,9 @@ router.get("/:id", auth, (req, res) => {
   let sql = `
     SELECT 
       r.*,
+      r.reviewed_at AS responded_at,
       u.username AS created_by_username,
-      ru.username AS reviewed_by_username
+      ru.username AS responded_by_username
     FROM requests r
     JOIN users u ON r.created_by = u.id
     LEFT JOIN users ru ON r.reviewed_by = ru.id

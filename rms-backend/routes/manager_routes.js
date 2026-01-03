@@ -42,7 +42,8 @@ router.post("/requests/:id/approve", auth, role("MANAGER"), (req, res) => {
         return res.status(400).json({ message: "Invalid transition" });
       }
 
-      res.json({ message: "Manager approved" });
+      // return server time (optional convenience)
+      res.json({ message: "Manager approved", responded_at: new Date().toISOString() });
     }
   );
 });
@@ -70,7 +71,7 @@ router.post("/requests/:id/reject", auth, role("MANAGER"), (req, res) => {
         return res.status(400).json({ message: "Invalid transition" });
       }
 
-      res.json({ message: "Rejected" });
+      res.json({ message: "Rejected", responded_at: new Date().toISOString() });
     }
   );
 });
