@@ -183,6 +183,9 @@ router.post("/reset-password", async (req, res) => {
    🔴 DEV RESET PASSWORD (NO TOKEN, NO EMAIL)
    ONLY ADDITION — EMERGENCY USE
 ========================= */
+// =========================
+// DEV RESET PASSWORD
+// =========================
 router.post("/dev-reset-password", async (req, res) => {
   const { email, newPassword } = req.body;
 
@@ -203,7 +206,6 @@ router.post("/dev-reset-password", async (req, res) => {
       "UPDATE users SET password_hash = ? WHERE email = ?",
       [hash, email],
       () => {
-        // IMPORTANT: do not reveal user existence
         res.json({
           message: "If account exists, password has been reset"
         });
@@ -214,3 +216,5 @@ router.post("/dev-reset-password", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+module.exports = router;
