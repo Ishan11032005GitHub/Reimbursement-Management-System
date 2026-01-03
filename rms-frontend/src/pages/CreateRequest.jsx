@@ -25,7 +25,6 @@ export default function CreateRequest() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const validate = () => {
     if (!title.trim()) return "Title is required";
@@ -35,19 +34,9 @@ export default function CreateRequest() {
     return null;
   };
 
-  const resetForm = () => {
-    setTitle("");
-    setAmount("");
-    setDate("");
-    setCategory(null);
-    setFile(null);
-    if (fileRef.current) fileRef.current.value = "";
-  };
-
   const submit = async (e) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
 
     const msg = validate();
     if (msg) {
@@ -65,19 +54,19 @@ export default function CreateRequest() {
       formData.append("category", category.value);
       if (file) formData.append("file", file);
 
-      const res = await api.post("/requests", formData);
+      const res = await api.post("/requests", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
 
-      resetForm();
-      setSuccess("Request created successfully");
-
-      // ✅ open the created request directly
-      if (res?.data?.id) {
-        navigate(`/requests/${res.data.id}`);
-      } else {
-        navigate("/requests");
+      const requestId = res?.data?.id;
+      if (!requestId) {
+        throw new Error("Backend did not return request id");
       }
-    } catch (e2) {
-      setError(e2?.response?.data?.message || "Failed to create request");
+
+      // 🚀 Redirect to Open Request page
+      navigate(`/requests/${requestId}`);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to create request");
     } finally {
       setLoading(false);
     }
@@ -94,7 +83,6 @@ export default function CreateRequest() {
         </p>
 
         {error && <p className="error-msg">{error}</p>}
-        {success && <p className="success-msg">{success}</p>}
 
         <form className="create-card" onSubmit={submit}>
           <div className="form-grid">
@@ -137,10 +125,7 @@ export default function CreateRequest() {
             <input
               type="file"
               ref={fileRef}
-              onChange={(e) => {
-                const f = e.target.files?.[0] || null;
-                setFile(f);
-              }}
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
               disabled={loading}
             />
           </div>
