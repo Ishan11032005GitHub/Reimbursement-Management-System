@@ -36,6 +36,9 @@ export default function RequestDetail() {
   if (loading) return <p>Loading…</p>;
   if (!req) return null;
 
+  const showResponseInfo =
+    req.status !== "DRAFT" && req.status !== "SUBMITTED";
+
   return (
     <>
       <Navbar />
@@ -48,28 +51,35 @@ export default function RequestDetail() {
           <p><b>Amount:</b> ₹{req.amount}</p>
           <p><b>Category:</b> {req.category}</p>
 
-          {/* 🔹 Creation time */}
+          {/* Creation time */}
           <p>
             <b>Created On:</b>{" "}
             {formatDateTime(req.created_at)}
           </p>
 
-          {/* 🔹 Expense date */}
+          {/* Expense date */}
           <p>
             <b>Expense Date:</b>{" "}
             {formatDate(req.date)}
           </p>
 
-          {/* 🔹 Manager response time */}
-          {req.status !== "DRAFT" &&
-            req.status !== "SUBMITTED" && (
-              <p>
-                <b>Responded On:</b>{" "}
-                {formatDateTime(req.responded_at)}
-              </p>
-            )}
+          {/* Manager response time */}
+          {showResponseInfo && (
+            <p>
+              <b>Responded On:</b>{" "}
+              {formatDateTime(req.responded_at)}
+            </p>
+          )}
 
-          {/* 🔹 Attachment */}
+          {/* Manager comment (approve + reject) */}
+          {showResponseInfo && req.manager_comment && (
+            <div className="manager-comment">
+              <b>Manager Comment:</b>
+              <p>{req.manager_comment}</p>
+            </div>
+          )}
+
+          {/* Attachment */}
           <div style={{ marginTop: "8px" }}>
             <b>Attachment:</b>{" "}
             {req.file_url ? (
@@ -86,7 +96,7 @@ export default function RequestDetail() {
             )}
           </div>
 
-          {/* 🔹 Submit button */}
+          {/* Submit button */}
           {req.status === "DRAFT" &&
             req.created_by === user.id && (
               <button
