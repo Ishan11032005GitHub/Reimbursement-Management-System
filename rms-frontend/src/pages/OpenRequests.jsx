@@ -16,7 +16,8 @@ export default function OpenRequests() {
     });
   }, []);
 
-  const statusClass = (s) => (s || "").toLowerCase().replace(/_/g, "-");
+  const statusClass = (s) =>
+    (s || "").toLowerCase().replace(/_/g, "-");
 
   return (
     <>
@@ -37,7 +38,7 @@ export default function OpenRequests() {
               </Link>
 
               <span className={`status-badge ${statusClass(r.status)}`}>
-                {r.status}
+                {r.status.replace(/_/g, " ")}
               </span>
             </div>
           ))}

@@ -8,21 +8,22 @@ export default function RequestList() {
   const [list, setList] = useState([]);
 
   useEffect(() => {
-    api.get("/requests").then(res => setList(res.data));
+    api.get("/requests").then((res) => setList(res.data));
   }, []);
 
-  const statusClass = s =>
+  const statusClass = (s) =>
     `status-${(s || "").toLowerCase().replace(/_/g, "-")}`;
 
   return (
     <>
       <Navbar />
+
       <div className="requestlist-container">
         <h2>My Requests</h2>
 
         {list.length === 0 && <p>No requests yet</p>}
 
-        {list.map(r => (
+        {list.map((r) => (
           <div key={r.id} className="request-card">
             <Link to={`/requests/${r.id}`} className="request-title">
               {r.title}
