@@ -7,6 +7,7 @@ import {
   Pie,
   Cell,
   Tooltip,
+  Legend,
   ResponsiveContainer
 } from "recharts";
 import "./Dashboard.css";
@@ -14,8 +15,9 @@ import "./Dashboard.css";
 const COLORS = {
   DRAFT: "#9E9E9E",
   SUBMITTED: "#FFB300",
-  MANAGER_APPROVED: "#4CAF50",
-  REJECTED: "#F44336"
+  MANAGER_APPROVED: "#2E7D32",
+  FINAL_APPROVED: "#1B5E20",
+  REJECTED: "#C62828"
 };
 
 export default function Dashboard() {
@@ -42,34 +44,37 @@ export default function Dashboard() {
   return (
     <>
       <Navbar />
+
       <div className="dashboard-container">
         <h1 className="dashboard-title">DASHBOARD</h1>
 
         <div className="dashboard-card">
-          <p>Welcome, <b>{user.username}</b></p>
+          <p className="dashboard-user">
+            Welcome,&nbsp;<b>{user.username}</b>
+          </p>
 
-          {user.role === "USER" && (
-            <>
-              {pieData.length === 0 ? (
-                <p className="dashboard-note">No requests created yet</p>
-              ) : (
-                <ResponsiveContainer width="100%" height={260}>
-                  <PieChart>
-                    <Pie
-                      data={pieData}
-                      dataKey="value"
-                      nameKey="name"
-                      outerRadius={90}
-                    >
-                      {pieData.map(p => (
-                        <Cell key={p.key} fill={COLORS[p.key]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              )}
-            </>
+          {pieData.length === 0 ? (
+            <p className="dashboard-note">No requests created yet</p>
+          ) : (
+            <div className="chart-wrapper">
+              <ResponsiveContainer width="100%" height={320}>
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    outerRadius={110}
+                    label
+                  >
+                    {pieData.map(p => (
+                      <Cell key={p.key} fill={COLORS[p.key]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           )}
         </div>
       </div>

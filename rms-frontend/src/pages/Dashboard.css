@@ -71,3 +71,37 @@
   font-style: italic;
   color: #666;
 }
+
+.dashboard-container {
+  padding: 2.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.dashboard-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: #001bb7;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-card {
+  background: #e6f5fb;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-user {
+  font-size: clamp(1.2rem, 2.5vw, 2rem);
+  margin-bottom: 1rem;
+}
+
+.chart-wrapper {
+  margin-top: 1.5rem;
+  width: 100%;
+}
+
+.dashboard-note {
+  font-style: italic;
+  color: #555;
+}
