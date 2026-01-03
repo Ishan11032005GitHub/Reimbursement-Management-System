@@ -184,39 +184,6 @@ router.post("/reset-password", async (req, res) => {
    ONLY ADDITION — EMERGENCY USE
 ========================= */
 router.post("/dev-reset-password", async (req, res) => {
-  if (process.env.NODE_ENV === "production") {
-    return res.status(403).json({ message: "Disabled in production" });
-  }
-
-  const { email, newPassword } = req.body;
-
-  if (!email || !newPassword) {
-    return res.status(400).json({ message: "Missing fields" });
-  }
-
-  if (newPassword.length < 8) {
-    return res.status(400).json({
-      message: "Password must be at least 8 characters"
-    });
-  }
-
-  const hash = await bcrypt.hash(newPassword, 10);
-
-  db.query(
-    "UPDATE users SET password_hash = ? WHERE email = ?",
-    [hash, email],
-    () => {
-      // Do NOT reveal whether user exists
-      res.json({
-        message: "If account exists, password has been reset (DEV)"
-      });
-    }
-  );
-});
-
-module.exports = router;
-
-router.post("/dev-reset-password", async (req, res) => {
   const { email, newPassword } = req.body;
 
   if (!email || !newPassword) {
