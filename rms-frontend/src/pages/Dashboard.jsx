@@ -15,9 +15,39 @@ import "./Dashboard.css";
 const COLORS = {
   DRAFT: "#9E9E9E",
   SUBMITTED: "#FFB300",
-  MANAGER_APPROVED: "#2E7D32",
-  FINAL_APPROVED: "#1B5E20",
+  MANAGER_APPROVED: "#43A047",
+  FINAL_APPROVED: "#0B3D0B", // dark green (FIXED)
   REJECTED: "#C62828"
+};
+
+const CustomLegend = ({ payload }) => {
+  return (
+    <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+      {payload.map(entry => (
+        <li
+          key={entry.value}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "8px",
+            fontSize: "0.95rem"
+          }}
+        >
+          <span
+            style={{
+              width: 14,
+              height: 14,
+              backgroundColor: entry.color,
+              display: "inline-block",
+              marginRight: 8,
+              borderRadius: 3
+            }}
+          />
+          {entry.value}
+        </li>
+      ))}
+    </ul>
+  );
 };
 
 export default function Dashboard() {
@@ -64,14 +94,19 @@ export default function Dashboard() {
                     dataKey="value"
                     nameKey="name"
                     outerRadius={110}
-                    label
+                    label={({ name, value }) => `${name}: ${value}`}
                   >
                     {pieData.map(p => (
                       <Cell key={p.key} fill={COLORS[p.key]} />
                     ))}
                   </Pie>
                   <Tooltip />
-                  <Legend />
+                  <Legend
+                    layout="vertical"
+                    align="right"
+                    verticalAlign="middle"
+                    content={<CustomLegend />}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
