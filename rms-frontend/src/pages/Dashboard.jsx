@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/axios";
@@ -16,34 +16,20 @@ const COLORS = {
   DRAFT: "#9E9E9E",
   SUBMITTED: "#FFB300",
   MANAGER_APPROVED: "#43A047",
-  FINAL_APPROVED: "#0B3D0B", // dark green (FIXED)
+  FINAL_APPROVED: "#0B3D0B", // dark green (fixed)
   REJECTED: "#C62828"
 };
 
 const CustomLegend = ({ payload }) => {
   return (
-    <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+    <ul className="dashboard-legend">
       {payload.map(entry => (
-        <li
-          key={entry.value}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: "8px",
-            fontSize: "0.95rem"
-          }}
-        >
+        <li key={entry.value} className="dashboard-legend-item">
           <span
-            style={{
-              width: 14,
-              height: 14,
-              backgroundColor: entry.color,
-              display: "inline-block",
-              marginRight: 8,
-              borderRadius: 3
-            }}
+            className="dashboard-legend-swatch"
+            style={{ backgroundColor: entry.color }}
           />
-          {entry.value}
+          <span className="dashboard-legend-text">{entry.value}</span>
         </li>
       ))}
     </ul>
@@ -53,23 +39,56 @@ const CustomLegend = ({ payload }) => {
 export default function Dashboard() {
   const { user } = useAuth();
   const [summary, setSummary] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(max-width: 600px)").matches;
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 600px)");
+    const handler = e => setIsMobile(e.matches);
+
+    // Support older browsers
+    if (mq.addEventListener) mq.addEventListener("change", handler);
+    else mq.addListener(handler);
+
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener("change", handler);
+      else mq.removeListener(handler);
+    };
+  }, []);
 
   useEffect(() => {
     if (!user || user.role !== "USER") return;
 
+    setLoading(true);
+    setError("");
+
     api
       .get("/requests/summary")
       .then(res => setSummary(res.data))
-      .catch(() => setSummary({}));
+      .catch(() => {
+        setSummary({});
+        setError("Failed to load dashboard summary. Please refresh.");
+      })
+      .finally(() => setLoading(false));
   }, [user]);
 
   if (!user) return null;
 
-  const pieData = Object.entries(summary).map(([k, v]) => ({
-    key: k,
-    name: k.replace(/_/g, " "),
-    value: v
-  }));
+  const pieData = useMemo(() => {
+    return Object.entries(summary).map(([k, v]) => ({
+      key: k,
+      name: k.replace(/_/g, " "),
+      value: v
+    }));
+  }, [summary]);
+
+  const chartHeight = isMobile ? 240 : 320;
 
   return (
     <>
@@ -83,18 +102,22 @@ export default function Dashboard() {
             Welcome,&nbsp;<b>{user.username}</b>
           </p>
 
-          {pieData.length === 0 ? (
+          {loading ? (
+            <p className="dashboard-note">Loading summary...</p>
+          ) : error ? (
+            <p className="dashboard-error">{error}</p>
+          ) : pieData.length === 0 ? (
             <p className="dashboard-note">No requests created yet</p>
           ) : (
             <div className="chart-wrapper">
-              <ResponsiveContainer width="100%" height={320}>
+              <ResponsiveContainer width="100%" height={chartHeight}>
                 <PieChart>
                   <Pie
                     data={pieData}
                     dataKey="value"
                     nameKey="name"
-                    outerRadius={110}
-                    label={({ name, value }) => `${name}: ${value}`}
+                    outerRadius={isMobile ? 90 : 110}
+                    label={!isMobile}
                   >
                     {pieData.map(p => (
                       <Cell key={p.key} fill={COLORS[p.key]} />
@@ -102,9 +125,9 @@ export default function Dashboard() {
                   </Pie>
                   <Tooltip />
                   <Legend
-                    layout="vertical"
-                    align="right"
-                    verticalAlign="middle"
+                    layout={isMobile ? "horizontal" : "vertical"}
+                    align={isMobile ? "center" : "right"}
+                    verticalAlign={isMobile ? "bottom" : "middle"}
                     content={<CustomLegend />}
                   />
                 </PieChart>

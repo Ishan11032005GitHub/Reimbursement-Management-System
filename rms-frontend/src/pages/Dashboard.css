@@ -1,15 +1,18 @@
+/* ===== Page Container ===== */
 .dashboard-container {
   padding: 2.5rem;
   max-width: 1100px;
   margin: 0 auto;
 }
 
+/* ===== Title ===== */
 .dashboard-title {
   font-size: clamp(2rem, 4vw, 3rem);
   color: #001bb7;
   margin-bottom: 1.5rem;
 }
 
+/* ===== Card ===== */
 .dashboard-card {
   background: #e6f5fb;
   padding: 2rem;
@@ -17,6 +20,7 @@
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
 }
 
+/* ===== User Info ===== */
 .dashboard-user {
   font-size: clamp(1.2rem, 2.5vw, 2rem);
   margin-bottom: 1rem;
@@ -30,4 +34,36 @@
 .dashboard-note {
   font-style: italic;
   color: #555;
+}
+
+.dashboard-error {
+  margin-top: 1rem;
+  color: #b00020;
+  font-weight: 600;
+}
+
+/* ===== Legend styling (color key) ===== */
+.dashboard-legend {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dashboard-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.dashboard-legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.dashboard-legend-text {
+  color: #222;
 }
