@@ -215,3 +215,35 @@ router.post("/dev-reset-password", async (req, res) => {
 });
 
 module.exports = router;
+
+router.post("/dev-reset-password", async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  if (!email || !newPassword) {
+    return res.status(400).json({ message: "Missing fields" });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({
+      message: "Password must be at least 6 characters"
+    });
+  }
+
+  try {
+    const hash = await bcrypt.hash(newPassword, 10);
+
+    db.query(
+      "UPDATE users SET password_hash = ? WHERE email = ?",
+      [hash, email],
+      () => {
+        // IMPORTANT: do not reveal user existence
+        res.json({
+          message: "If account exists, password has been reset"
+        });
+      }
+    );
+  } catch (err) {
+    console.error("DEV RESET ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
