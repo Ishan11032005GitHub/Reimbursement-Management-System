@@ -48,10 +48,19 @@ export default function RequestDetail() {
           <p><b>Amount:</b> ₹{req.amount}</p>
           <p><b>Category:</b> {req.category}</p>
 
-          {/* Expense date */}
-          <p><b>Expense Date:</b> {formatDate(req.date)}</p>
+          {/* 🔹 Creation time */}
+          <p>
+            <b>Created On:</b>{" "}
+            {formatDateTime(req.created_at)}
+          </p>
 
-          {/* Manager response time */}
+          {/* 🔹 Expense date */}
+          <p>
+            <b>Expense Date:</b>{" "}
+            {formatDate(req.date)}
+          </p>
+
+          {/* 🔹 Manager response time */}
           {req.status !== "DRAFT" &&
             req.status !== "SUBMITTED" && (
               <p>
@@ -60,7 +69,7 @@ export default function RequestDetail() {
               </p>
             )}
 
-          {/* Attachment */}
+          {/* 🔹 Attachment */}
           <div style={{ marginTop: "8px" }}>
             <b>Attachment:</b>{" "}
             {req.file_url ? (
@@ -77,7 +86,7 @@ export default function RequestDetail() {
             )}
           </div>
 
-          {/* Submit button (only for owner + draft) */}
+          {/* 🔹 Submit button */}
           {req.status === "DRAFT" &&
             req.created_by === user.id && (
               <button
