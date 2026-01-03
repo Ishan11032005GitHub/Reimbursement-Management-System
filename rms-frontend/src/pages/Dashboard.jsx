@@ -90,11 +90,12 @@ export default function Dashboard() {
               <ResponsiveContainer width="100%" height={320}>
                 <PieChart>
                   <Pie
-                    data={pieData}
-                    dataKey="value"
-                    nameKey="name"
-                    outerRadius={110}
-                    label={({ name, value }) => `${name}: ${value}`}
+                      data={data}
+                      dataKey="value"
+                      label={({ name, percent }) =>
+                        `${name} ${(percent * 100).toFixed(0)}%`
+                      }
+                    labelLine={false}
                   >
                     {pieData.map(p => (
                       <Cell key={p.key} fill={COLORS[p.key]} />
