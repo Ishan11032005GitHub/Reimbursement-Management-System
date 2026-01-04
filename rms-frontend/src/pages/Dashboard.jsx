@@ -10,20 +10,22 @@ import {
   Legend,
   ResponsiveContainer
 } from "recharts";
+import { Link } from "react-router-dom";
 import "./Dashboard.css";
 
 const COLORS = {
   DRAFT: "#9E9E9E",
   SUBMITTED: "#FFB300",
   MANAGER_APPROVED: "#43A047",
-  FINAL_APPROVED: "#0B3D0B", // dark green (fixed)
+  FINAL_APPROVED: "#1565C0",
   REJECTED: "#C62828"
 };
 
 const CustomLegend = ({ payload }) => {
+  if (!payload) return null;
   return (
     <ul className="dashboard-legend">
-      {payload.map(entry => (
+      {payload.map((entry) => (
         <li key={entry.value} className="dashboard-legend-item">
           <span
             className="dashboard-legend-swatch"
@@ -50,9 +52,8 @@ export default function Dashboard() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const mq = window.matchMedia("(max-width: 600px)");
-    const handler = e => setIsMobile(e.matches);
+    const handler = (e) => setIsMobile(e.matches);
 
-    // Support older browsers
     if (mq.addEventListener) mq.addEventListener("change", handler);
     else mq.addListener(handler);
 
@@ -70,7 +71,7 @@ export default function Dashboard() {
 
     api
       .get("/requests/summary")
-      .then(res => setSummary(res.data))
+      .then((res) => setSummary(res.data || {}))
       .catch(() => {
         setSummary({});
         setError("Failed to load dashboard summary. Please refresh.");
@@ -81,12 +82,16 @@ export default function Dashboard() {
   if (!user) return null;
 
   const pieData = useMemo(() => {
-    return Object.entries(summary).map(([k, v]) => ({
+    return Object.entries(summary || {}).map(([k, v]) => ({
       key: k,
-      name: k.replace(/_/g, " "),
-      value: v
+      name: String(k).replace(/_/g, " "),
+      value: Number(v || 0)
     }));
   }, [summary]);
+
+  const total = useMemo(() => {
+    return pieData.reduce((acc, x) => acc + (x.value || 0), 0);
+  }, [pieData]);
 
   const chartHeight = isMobile ? 240 : 320;
 
@@ -103,36 +108,65 @@ export default function Dashboard() {
           </p>
 
           {loading ? (
-            <p className="dashboard-note">Loading summary...</p>
+            <p className="dashboard-note">Loading summary…</p>
           ) : error ? (
             <p className="dashboard-error">{error}</p>
-          ) : pieData.length === 0 ? (
-            <p className="dashboard-note">No requests created yet</p>
-          ) : (
-            <div className="chart-wrapper">
-              <ResponsiveContainer width="100%" height={chartHeight}>
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    dataKey="value"
-                    nameKey="name"
-                    outerRadius={isMobile ? 90 : 110}
-                    label={!isMobile}
-                  >
-                    {pieData.map(p => (
-                      <Cell key={p.key} fill={COLORS[p.key]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend
-                    layout={isMobile ? "horizontal" : "vertical"}
-                    align={isMobile ? "center" : "right"}
-                    verticalAlign={isMobile ? "bottom" : "middle"}
-                    content={<CustomLegend />}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+          ) : total === 0 ? (
+            <div className="empty-card">
+              <div className="empty-title">No requests yet.</div>
+              <div className="empty-sub">
+                Create your first reimbursement request to see analytics here.
+              </div>
+              <Link className="empty-cta-link" to="/requests/new">
+                Create Request
+              </Link>
             </div>
+          ) : (
+            <>
+              <div className="dashboard-kpis">
+                <div className="kpi">
+                  <div className="kpi-label">Total Requests</div>
+                  <div className="kpi-value">{total}</div>
+                </div>
+                <div className="kpi">
+                  <div className="kpi-label">Rejected</div>
+                  <div className="kpi-value">
+                    {Number(summary.REJECTED || 0)}
+                  </div>
+                </div>
+                <div className="kpi">
+                  <div className="kpi-label">Pending Review</div>
+                  <div className="kpi-value">
+                    {Number(summary.SUBMITTED || 0)}
+                  </div>
+                </div>
+              </div>
+
+              <div className="chart-wrapper">
+                <ResponsiveContainer width="100%" height={chartHeight}>
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      dataKey="value"
+                      nameKey="name"
+                      outerRadius={isMobile ? 90 : 110}
+                      label={!isMobile}
+                    >
+                      {pieData.map((p) => (
+                        <Cell key={p.key} fill={COLORS[p.key] || "#8884d8"} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend
+                      layout={isMobile ? "horizontal" : "vertical"}
+                      align={isMobile ? "center" : "right"}
+                      verticalAlign={isMobile ? "bottom" : "middle"}
+                      content={<CustomLegend />}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </>
           )}
         </div>
       </div>

@@ -38,9 +38,10 @@ export default function CreateRequest() {
     () => ({
       control: (base) => ({
         ...base,
-        borderRadius: 8,
-        borderColor: "#ccc",
-        minHeight: 40
+        borderRadius: 10,
+        borderColor: "rgba(0,0,0,0.15)",
+        minHeight: 42,
+        fontWeight: 700
       })
     }),
     []
@@ -83,7 +84,6 @@ export default function CreateRequest() {
       const newId = res.data?.id;
       resetForm();
 
-      // Go directly to the created request (best UX)
       if (newId) navigate(`/requests/${newId}`);
       else navigate("/requests");
     } catch (e2) {
@@ -151,8 +151,12 @@ export default function CreateRequest() {
           </div>
 
           <button className="create-btn" disabled={loading}>
-            {loading ? "Submitting..." : "Create Request"}
+            {loading ? "Submitting…" : "Create Request"}
           </button>
+
+          <div className="create-hint">
+            Tip: Add a clear title like <b>“Taxi to office – Jan 3”</b> and attach the bill if available.
+          </div>
         </form>
       </div>
     </>

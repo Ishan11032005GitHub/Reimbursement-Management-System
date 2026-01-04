@@ -1,18 +1,17 @@
-/* ===== Page Container ===== */
 .dashboard-container {
   padding: 2.5rem;
   max-width: 1100px;
   margin: 0 auto;
 }
 
-/* ===== Title ===== */
 .dashboard-title {
   font-size: clamp(2rem, 4vw, 3rem);
   color: #001bb7;
   margin-bottom: 1.5rem;
+  text-align: center;
+  letter-spacing: 1px;
 }
 
-/* ===== Card ===== */
 .dashboard-card {
   background: #e6f5fb;
   padding: 2rem;
@@ -20,10 +19,44 @@
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
 }
 
-/* ===== User Info ===== */
 .dashboard-user {
   font-size: clamp(1.2rem, 2.5vw, 2rem);
   margin-bottom: 1rem;
+  text-align: center;
+}
+
+.dashboard-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 10px 0 18px;
+}
+
+@media (max-width: 700px) {
+  .dashboard-kpis {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kpi {
+  background: rgba(255,255,255,0.75);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+}
+
+.kpi-label {
+  font-weight: 900;
+  color: #0b1c2d;
+  opacity: 0.85;
+}
+
+.kpi-value {
+  font-weight: 900;
+  font-size: 1.8rem;
+  color: #001bb7;
+  margin-top: 6px;
 }
 
 .chart-wrapper {
@@ -34,15 +67,17 @@
 .dashboard-note {
   font-style: italic;
   color: #555;
+  text-align: center;
 }
 
 .dashboard-error {
   margin-top: 1rem;
   color: #b00020;
-  font-weight: 600;
+  font-weight: 800;
+  text-align: center;
 }
 
-/* ===== Legend styling (color key) ===== */
+/* Legend styling */
 .dashboard-legend {
   list-style: none;
   padding: 0;
@@ -55,6 +90,7 @@
   gap: 8px;
   margin-bottom: 8px;
   font-size: 0.95rem;
+  font-weight: 800;
 }
 
 .dashboard-legend-swatch {
@@ -66,4 +102,39 @@
 
 .dashboard-legend-text {
   color: #222;
+}
+
+/* Empty card */
+.empty-card {
+  margin: 1.2rem auto 0;
+  width: min(700px, 100%);
+  background: rgba(255,255,255,0.75);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 16px;
+  padding: 18px;
+  text-align: center;
+  box-shadow: 0 10px 22px rgba(0,0,0,0.08);
+}
+
+.empty-title {
+  font-weight: 900;
+  font-size: 1.2rem;
+  color: #0b1c2d;
+}
+
+.empty-sub {
+  margin-top: 6px;
+  color: #333;
+  font-weight: 700;
+}
+
+.empty-cta-link {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #0046ff;
+  color: #fff;
+  font-weight: 900;
+  text-decoration: none;
 }

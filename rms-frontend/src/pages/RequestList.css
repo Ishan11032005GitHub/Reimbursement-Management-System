@@ -7,7 +7,7 @@
 .requestlist-title {
   font-size: 3rem;
   color: #001bb7;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem;
   text-align: center;
   letter-spacing: 1px;
 }
@@ -19,6 +19,91 @@
   margin-top: 1rem;
 }
 
+/* ===== Controls ===== */
+.requestlist-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.requestlist-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.tab-btn {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.10);
+  background: rgba(255,255,255,0.65);
+  color: #0b1c2d;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: #1e88e5;
+  color: #fff;
+  border-color: rgba(30,136,229,0.35);
+}
+
+.requestlist-search {
+  display: flex;
+  justify-content: center;
+}
+
+.requestlist-search input {
+  width: min(560px, 100%);
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.15);
+  font-weight: 700;
+}
+
+/* ===== Empty Card ===== */
+.empty-card {
+  margin: 1.2rem auto;
+  width: min(700px, 100%);
+  background: rgba(255,255,255,0.75);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 16px;
+  padding: 18px;
+  text-align: center;
+  box-shadow: 0 10px 22px rgba(0,0,0,0.08);
+}
+
+.empty-title {
+  font-weight: 900;
+  font-size: 1.2rem;
+  color: #0b1c2d;
+}
+
+.empty-sub {
+  margin-top: 6px;
+  color: #333;
+  font-weight: 700;
+}
+
+.empty-cta {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: none;
+  background: #0046ff;
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.empty-cta.secondary {
+  background: rgba(0,0,0,0.10);
+  color: #0b1c2d;
+}
+
+/* ===== Grid ===== */
 .requestlist-grid {
   display: flex;
   flex-direction: column;
@@ -46,7 +131,7 @@
 }
 
 .requestlist-link {
-  font-weight: 800;
+  font-weight: 900;
   color: #001bb7;
   text-decoration: none;
   font-size: 2rem;
@@ -62,7 +147,7 @@
   padding: 0.45rem 1rem;
   border-radius: 999px;
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 900;
   white-space: nowrap;
 }
 
@@ -96,10 +181,14 @@
   font-size: 0.95rem;
 }
 
+.meta-item b {
+  color: #0b1c2d;
+}
+
 .requestlist-rejected-hint {
   font-size: 0.9rem;
   color: #c62828;
-  font-weight: 700;
+  font-weight: 900;
 }
 
 /* Responsive */
