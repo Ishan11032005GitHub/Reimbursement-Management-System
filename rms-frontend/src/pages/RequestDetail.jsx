@@ -33,7 +33,7 @@ export default function RequestDetail() {
       .finally(() => setLoading(false));
   }, [id, navigate]);
 
-  if (loading) return <p className="page-loading">Loading…</p>;
+  if (loading) return <p>Loading…</p>;
   if (!req) return null;
 
   const showResponseInfo =
@@ -45,48 +45,43 @@ export default function RequestDetail() {
 
       <div className="request-detail-container">
         <div className="request-card">
-          <h2 className="request-detail-title">{req.title}</h2>
+          <h2>{req.title}</h2>
 
-          <span className={`status-badge ${req.status.toLowerCase().replace(/_/g, "-")}`}>
-            {req.status.replace(/_/g, " ")}
-          </span>
+          <p><b>Status:</b> {req.status.replace(/_/g, " ")}</p>
+          <p><b>Amount:</b> ₹{req.amount}</p>
+          <p><b>Category:</b> {req.category}</p>
 
-          <div className="field">
-            <label>Amount</label>
-            <p>₹{req.amount}</p>
-          </div>
+          {/* Creation time */}
+          <p>
+            <b>Created On:</b>{" "}
+            {formatDateTime(req.created_at)}
+          </p>
 
-          <div className="field">
-            <label>Category</label>
-            <p>{req.category}</p>
-          </div>
+          {/* Expense date */}
+          <p>
+            <b>Expense Date:</b>{" "}
+            {formatDate(req.date)}
+          </p>
 
-          <div className="field">
-            <label>Created On</label>
-            <p>{formatDateTime(req.created_at)}</p>
-          </div>
-
-          <div className="field">
-            <label>Expense Date</label>
-            <p>{formatDate(req.date)}</p>
-          </div>
-
+          {/* Manager response time */}
           {showResponseInfo && (
-            <div className="field">
-              <label>Responded On</label>
-              <p>{formatDateTime(req.responded_at)}</p>
-            </div>
+            <p>
+              <b>Responded On:</b>{" "}
+              {formatDateTime(req.responded_at)}
+            </p>
           )}
 
+          {/* Manager comment (approve + reject) */}
           {showResponseInfo && req.manager_comment && (
-            <div className="rejection-box">
-              <b>Manager Comment</b>
+            <div className="manager-comment">
+              <b>Manager Comment:</b>
               <p>{req.manager_comment}</p>
             </div>
           )}
 
-          <div className="field">
-            <label>Attachment</label>
+          {/* Attachment */}
+          <div style={{ marginTop: "8px" }}>
+            <b>Attachment:</b>{" "}
             {req.file_url ? (
               <a
                 href={req.file_url}
@@ -97,25 +92,22 @@ export default function RequestDetail() {
                 View uploaded file
               </a>
             ) : (
-              <p>No attachment</p>
+              "No attachment"
             )}
           </div>
 
-          {/* ===== ACTIONS ===== */}
+          {/* Submit button */}
           {(req.status === "DRAFT" || req.status === "MANAGER_APPROVED") &&
             req.created_by === user.id && (
-              <div className="actions">
-                <button
-                  className="submit-btn"
-                  onClick={() =>
-                    api
-                      .post(`/requests/${id}/submit`)
-                      .then(() => navigate("/requests"))
-                  }
-                >
-                  Submit Request
-                </button>
-              </div>
+              <button
+                onClick={() =>
+                  api
+                    .post(`/requests/${id}/submit`)
+                    .then(() => navigate("/requests"))
+                }
+              >
+                Submit
+              </button>
             )}
         </div>
       </div>
