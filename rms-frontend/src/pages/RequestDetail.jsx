@@ -24,6 +24,7 @@ export default function RequestDetail() {
 
   const [req, setReq] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     api
@@ -33,11 +34,35 @@ export default function RequestDetail() {
       .finally(() => setLoading(false));
   }, [id, navigate]);
 
-  if (loading) return <p>Loading…</p>;
+  if (loading) return <p className="page-loading">Loading…</p>;
   if (!req) return null;
 
   const showResponseInfo =
     req.status !== "DRAFT" && req.status !== "SUBMITTED";
+
+  const submitDraft = async () => {
+    try {
+      setActionLoading(true);
+      await api.post(`/requests/${id}/submit`);
+      navigate("/requests");
+    } catch (e) {
+      alert("Submit failed");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const finalApprove = async () => {
+    try {
+      setActionLoading(true);
+      await api.post(`/requests/${id}/final-approve`);
+      navigate("/requests");
+    } catch (e) {
+      alert("Final approval failed");
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   return (
     <>
@@ -45,43 +70,52 @@ export default function RequestDetail() {
 
       <div className="request-detail-container">
         <div className="request-card">
-          <h2>{req.title}</h2>
+          <h2 className="request-detail-title">{req.title}</h2>
 
-          <p><b>Status:</b> {req.status.replace(/_/g, " ")}</p>
-          <p><b>Amount:</b> ₹{req.amount}</p>
-          <p><b>Category:</b> {req.category}</p>
+          <span
+            className={`status-badge ${req.status
+              .toLowerCase()
+              .replace(/_/g, "-")}`}
+          >
+            {req.status.replace(/_/g, " ")}
+          </span>
 
-          {/* Creation time */}
-          <p>
-            <b>Created On:</b>{" "}
-            {formatDateTime(req.created_at)}
-          </p>
+          <div className="field">
+            <label>Amount</label>
+            <p>₹{req.amount}</p>
+          </div>
 
-          {/* Expense date */}
-          <p>
-            <b>Expense Date:</b>{" "}
-            {formatDate(req.date)}
-          </p>
+          <div className="field">
+            <label>Category</label>
+            <p>{req.category}</p>
+          </div>
 
-          {/* Manager response time */}
+          <div className="field">
+            <label>Created On</label>
+            <p>{formatDateTime(req.created_at)}</p>
+          </div>
+
+          <div className="field">
+            <label>Expense Date</label>
+            <p>{formatDate(req.date)}</p>
+          </div>
+
           {showResponseInfo && (
-            <p>
-              <b>Responded On:</b>{" "}
-              {formatDateTime(req.responded_at)}
-            </p>
+            <div className="field">
+              <label>Responded On</label>
+              <p>{formatDateTime(req.responded_at)}</p>
+            </div>
           )}
 
-          {/* Manager comment (approve + reject) */}
           {showResponseInfo && req.manager_comment && (
-            <div className="manager-comment">
-              <b>Manager Comment:</b>
+            <div className="rejection-box">
+              <b>Manager Comment</b>
               <p>{req.manager_comment}</p>
             </div>
           )}
 
-          {/* Attachment */}
-          <div style={{ marginTop: "8px" }}>
-            <b>Attachment:</b>{" "}
+          <div className="field">
+            <label>Attachment</label>
             {req.file_url ? (
               <a
                 href={req.file_url}
@@ -92,23 +126,34 @@ export default function RequestDetail() {
                 View uploaded file
               </a>
             ) : (
-              "No attachment"
+              <p>No attachment</p>
             )}
           </div>
 
-          {/* Submit button */}
-          {(req.status === "DRAFT" || req.status === "MANAGER_APPROVED") &&
-            req.created_by === user.id && (
-              <button
-                onClick={() =>
-                  api
-                    .post(`/requests/${id}/submit`)
-                    .then(() => navigate("/requests"))
-                }
-              >
-                Submit
-              </button>
-            )}
+          {/* ===== ACTIONS ===== */}
+          {req.created_by === user.id && (
+            <div className="actions">
+              {req.status === "DRAFT" && (
+                <button
+                  className="submit-btn"
+                  disabled={actionLoading}
+                  onClick={submitDraft}
+                >
+                  Submit Request
+                </button>
+              )}
+
+              {req.status === "MANAGER_APPROVED" && (
+                <button
+                  className="submit-btn"
+                  disabled={actionLoading}
+                  onClick={finalApprove}
+                >
+                  Final Approve
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </>
