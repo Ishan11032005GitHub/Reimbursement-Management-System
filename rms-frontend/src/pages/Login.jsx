@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { motion } from "framer-motion";
 import "./Login.css";
 
 export default function Login() {
@@ -36,7 +37,13 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-      <form className="auth-card" onSubmit={submit}>
+      <motion.form
+        className="auth-card"
+        onSubmit={submit}
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: "easeOut" }}
+      >
         <h2 className="auth-title">Sign In</h2>
 
         <input
@@ -54,7 +61,6 @@ export default function Login() {
           disabled={loading}
         />
 
-        {/* Forgot password */}
         <div style={{ textAlign: "right", marginBottom: "16px" }}>
           <Link
             to="/forgot-password"
@@ -64,15 +70,19 @@ export default function Login() {
           </Link>
         </div>
 
-        <button className="login-btn" disabled={loading}>
+        <motion.button
+          className="login-btn"
+          disabled={loading}
+          whileTap={{ scale: 0.96 }}
+        >
           {loading ? "Logging in..." : "Login"}
-        </button>
+        </motion.button>
 
         <p className="signup-text">
           Don’t have an account?{" "}
           <Link to="/signup">Create one</Link>
         </p>
-      </form>
+      </motion.form>
     </div>
   );
 }

@@ -5,8 +5,13 @@
   background:
     radial-gradient(
       circle at top right,
-      rgba(255, 128, 64, 0.15),
-      transparent 40%
+      rgba(255, 128, 64, 0.18),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at bottom left,
+      rgba(0, 70, 255, 0.25),
+      transparent 45%
     ),
     linear-gradient(
       135deg,
@@ -20,6 +25,7 @@
   padding: clamp(1rem, 4vw, 3rem);
   box-sizing: border-box;
   text-align: center;
+  overflow: hidden;
 }
 
 /* ===== Logo Section ===== */
@@ -30,11 +36,17 @@
   margin-bottom: clamp(1rem, 3vw, 2rem);
 }
 
+/* Logo with depth */
 .title-image {
   width: clamp(140px, 25vw, 260px);
   height: auto;
-  border-radius: 14px;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  border-radius: 999px;
+  background: white;
+  padding: 0.6rem 1.2rem;
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 rgba(255,255,255,0);
+  will-change: transform;
 }
 
 /* ===== Subtitle ===== */
@@ -60,44 +72,36 @@
   font-size: clamp(0.9rem, 2vw, 1.1rem);
   padding: clamp(0.65rem, 2vw, 0.95rem)
            clamp(1.3rem, 4vw, 2.1rem);
-  border-radius: 10px;
+  border-radius: 12px;
   border: none;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.25s ease;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  transition: box-shadow 0.25s ease, background 0.25s ease;
+  will-change: transform;
 }
 
 /* Primary CTA */
 .btn.primary {
-  background: #FF8040;
+  background: linear-gradient(135deg, #FF8040, #ff9a64);
   color: #001BB7;
   box-shadow: 0 10px 25px rgba(255, 128, 64, 0.35);
 }
 
 .btn.primary:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 35px rgba(255, 128, 64, 0.45);
+  box-shadow: 0 18px 40px rgba(255, 128, 64, 0.45);
 }
 
 /* Secondary CTA */
 .btn.secondary {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.08);
   color: #F5F1DC;
-  border: 2px solid rgba(245, 241, 220, 0.7);
+  border: 2px solid rgba(245, 241, 220, 0.65);
+  backdrop-filter: blur(6px);
 }
 
 .btn.secondary:hover {
-  background: rgba(245, 241, 220, 0.15);
-}
-
-.title-image {
-  width: clamp(140px, 25vw, 260px);
-  height: auto;
-  border-radius: 999px; /* oval-friendly */
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
-  background: white; /* optional but recommended */
-  padding: 0.6rem 1.2rem; /* gives logo breathing room */
+  background: rgba(245, 241, 220, 0.18);
 }

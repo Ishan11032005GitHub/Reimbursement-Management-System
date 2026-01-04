@@ -1,14 +1,13 @@
+// ResetPassword.jsx
 import { useState } from "react";
-import { useSearchParams, useNavigate, Link } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../api/axios";
 import "./Login.css";
 
 export default function ResetPassword() {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-
-  const token = searchParams.get("token");
+  const [params] = useSearchParams();
+  const token = params.get("token");
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -18,13 +17,15 @@ export default function ResetPassword() {
     e.preventDefault();
 
     if (!token) {
-      toast.error("Invalid reset link");
+      toast.error("Invalid or missing token");
       return;
     }
-    if (!password || !confirm) {
-      toast.error("All fields are required");
+
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters");
       return;
     }
+
     if (password !== confirm) {
       toast.error("Passwords do not match");
       return;
@@ -38,8 +39,9 @@ export default function ResetPassword() {
         newPassword: password
       });
 
-      toast.success("Password reset successful");
-      navigate("/login");
+      toast.success("Password reset successful. You can log in now.");
+      setPassword("");
+      setConfirm("");
     } catch (err) {
       toast.error(err.response?.data?.message || "Reset failed");
     } finally {
@@ -62,14 +64,14 @@ export default function ResetPassword() {
 
         <input
           type="password"
-          placeholder="Confirm new password"
+          placeholder="Confirm password"
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
           disabled={loading}
         />
 
         <button className="login-btn" disabled={loading}>
-          {loading ? "Resetting..." : "Reset Password"}
+          {loading ? "Resetting…" : "Reset Password"}
         </button>
 
         <p className="signup-text">

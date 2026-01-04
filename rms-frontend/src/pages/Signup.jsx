@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { motion } from "framer-motion";
 import "./Signup.css";
 
 export default function Signup() {
@@ -38,7 +39,13 @@ export default function Signup() {
 
   return (
     <div className="auth-page">
-      <form className="auth-card" onSubmit={submit}>
+      <motion.form
+        className="auth-card"
+        onSubmit={submit}
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: "easeOut" }}
+      >
         <h2 className="auth-title">Create Account</h2>
 
         <input
@@ -73,15 +80,19 @@ export default function Signup() {
           <option value="MANAGER">Manager</option>
         </select>
 
-        <button className="signup-btn" disabled={loading}>
+        <motion.button
+          className="signup-btn"
+          disabled={loading}
+          whileTap={{ scale: 0.96 }}
+        >
           {loading ? "Creating..." : "Create Account"}
-        </button>
+        </motion.button>
 
         <p className="login-text">
           Already have an account?{" "}
           <Link to="/login">Sign in</Link>
         </p>
-      </form>
+      </motion.form>
     </div>
   );
 }

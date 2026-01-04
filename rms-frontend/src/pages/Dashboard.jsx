@@ -11,6 +11,7 @@ import {
   ResponsiveContainer
 } from "recharts";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import "./Dashboard.css";
 
 const COLORS = {
@@ -123,24 +124,41 @@ export default function Dashboard() {
             </div>
           ) : (
             <>
-              <div className="dashboard-kpis">
-                <div className="kpi">
-                  <div className="kpi-label">Total Requests</div>
-                  <div className="kpi-value">{total}</div>
-                </div>
-                <div className="kpi">
-                  <div className="kpi-label">Rejected</div>
-                  <div className="kpi-value">
-                    {Number(summary.REJECTED || 0)}
-                  </div>
-                </div>
-                <div className="kpi">
-                  <div className="kpi-label">Pending Review</div>
-                  <div className="kpi-value">
-                    {Number(summary.SUBMITTED || 0)}
-                  </div>
-                </div>
-              </div>
+              <motion.div
+  className="dashboard-kpis"
+  initial="hidden"
+  animate="show"
+  variants={{
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.12 }
+    }
+  }}
+>
+  {[{
+    label: "Total Requests",
+    value: total
+  }, {
+    label: "Rejected",
+    value: Number(summary.REJECTED || 0)
+  }, {
+    label: "Pending Review",
+    value: Number(summary.SUBMITTED || 0)
+  }].map((kpi) => (
+    <motion.div
+      key={kpi.label}
+      className="kpi"
+      variants={{
+        hidden: { opacity: 0, y: 12 },
+        show: { opacity: 1, y: 0 }
+      }}
+    >
+      <div className="kpi-label">{kpi.label}</div>
+      <div className="kpi-value">{kpi.value}</div>
+    </motion.div>
+  ))}
+</motion.div>
 
               <div className="chart-wrapper">
                 <ResponsiveContainer width="100%" height={chartHeight}>

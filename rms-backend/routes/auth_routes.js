@@ -87,6 +87,8 @@ router.post("/login", (req, res) => {
   );
 });
 
+const { sendResetEmail } = require("../utils/email");
+
 /* =========================
    FORGOT PASSWORD (UNCHANGED)
 ========================= */
@@ -99,11 +101,13 @@ router.post("/forgot-password", (req, res) => {
   db.query(
     "SELECT id FROM users WHERE email = ?",
     [email],
-    (err, rows) => {
-      if (err || !rows.length)
+    async (err, rows) => {
+      // Always return same response (prevent email enumeration)
+      if (err || !rows.length) {
         return res.json({
-          message: "If account exists, reset link generated"
+          message: "If account exists, reset link sent"
         });
+      }
 
       const userId = rows[0].id;
 
@@ -119,13 +123,22 @@ router.post("/forgot-password", (req, res) => {
       db.query(
         "UPDATE users SET reset_token_hash = ?, reset_token_expiry = ? WHERE id = ?",
         [tokenHash, expiry, userId],
-        () => {
-          const resetUrl = `http://localhost:5173/reset-password?token=${resetToken}`;
+        async () => {
+          try {
+            const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
-          res.json({
-            message: "Reset link generated (DEV)",
-            resetUrl
-          });
+            await sendResetEmail(email, resetUrl);
+
+            res.json({
+              message: "If account exists, reset link sent"
+            });
+          } catch (mailErr) {
+            console.error("EMAIL ERROR:", mailErr);
+
+            res.status(500).json({
+              message: "Failed to send email"
+            });
+          }
         }
       );
     }
@@ -139,7 +152,15 @@ router.post("/reset-password", async (req, res) => {
   const { token, newPassword } = req.body;
 
   if (!token || !newPassword)
-    return res.status(400).json({ message: "Invalid request" });
+    return res.status(400).json({message: "Invalid request"});
+
+  // inside /reset-password
+  if(newPassword.length<8){
+    return res.status(400).json({
+      message: "Password must be at least 8 characters"
+    });
+  }
+
 
   const tokenHash = crypto
     .createHash("sha256")
@@ -187,6 +208,12 @@ router.post("/reset-password", async (req, res) => {
 // DEV RESET PASSWORD
 // =========================
 router.post("/dev-reset-password", async (req, res) => {
+  if(process.env.NODE_ENV !== "production"){
+    return res.status(403).json({
+      message: "DEV endpoint disabled in production"
+    });
+  }
+
   const { email, newPassword } = req.body;
 
   if (!email || !newPassword) {

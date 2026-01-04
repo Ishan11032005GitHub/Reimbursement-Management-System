@@ -3,6 +3,7 @@ import api from "../api/axios";
 import Navbar from "../components/Navbar";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { motion } from "framer-motion";
 import "./RequestList.css";
 
 const fmtDateTime = (v) =>
@@ -102,10 +103,13 @@ export default function RequestList() {
 
         <div className="requestlist-grid">
           {filtered.map((r) => (
-            <div
-              key={r.id}
-              className="requestlist-card"
-            >
+            <motion.div
+  key={r.id}
+  className="requestlist-card"
+  whileHover={{ y: -4, boxShadow: "0 16px 32px rgba(0,0,0,0.14)" }}
+  initial={{ opacity: 0, y: 12 }}
+  animate={{ opacity: 1, y: 0 }}
+>
               <div className="requestlist-main">
                 <Link to={`/requests/${r.id}`} className="requestlist-link">
                   {r.title}
@@ -133,7 +137,7 @@ export default function RequestList() {
                   Rejected — open to see details
                 </div>
               )}
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

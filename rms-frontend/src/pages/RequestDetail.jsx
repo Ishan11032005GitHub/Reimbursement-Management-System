@@ -4,6 +4,7 @@ import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import { toast } from "react-toastify";
+import { motion } from "framer-motion";
 import "./RequestDetail.css";
 
 /* ===== Status Steps ===== */
@@ -27,7 +28,12 @@ const getFileType = (url) => {
   if (!url) return { kind: "none" };
   const clean = url.split("?")[0].toLowerCase();
   if (clean.endsWith(".pdf")) return { kind: "pdf", label: "PDF" };
-  if (clean.endsWith(".png") || clean.endsWith(".jpg") || clean.endsWith(".jpeg") || clean.endsWith(".webp"))
+  if (
+    clean.endsWith(".png") ||
+    clean.endsWith(".jpg") ||
+    clean.endsWith(".jpeg") ||
+    clean.endsWith(".webp")
+  )
     return { kind: "image", label: "Image" };
   return { kind: "file", label: "File" };
 };
@@ -39,7 +45,6 @@ export default function RequestDetail() {
 
   const [req, setReq] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
@@ -60,12 +65,11 @@ export default function RequestDetail() {
   }, [user, req]);
 
   const isRejected = req?.status === "REJECTED";
+
   const stepIndex = useMemo(() => {
     if (!req) return -1;
     if (req.status === "REJECTED") {
-      // if rejected, treat it as at least SUBMITTED for timeline clarity
-      const base = STEPS.indexOf("SUBMITTED");
-      return base >= 0 ? base : 1;
+      return STEPS.indexOf("SUBMITTED");
     }
     return STEPS.indexOf(req.status);
   }, [req]);
@@ -76,42 +80,39 @@ export default function RequestDetail() {
     if (!req) return [];
     const out = [];
 
-    // We only show events we can back with timestamps. No fake timeline.
     if (req.created_at) {
-      out.push({
-        ts: req.created_at,
-        text: "Request created"
-      });
+      out.push({ ts: req.created_at, text: "Request created" });
     }
 
-    // If backend sends reviewed_at/responded_at, show it
     const reviewedTs = req.responded_at || req.reviewed_at;
     if (reviewedTs) {
-      const by = req.responded_by_username || req.reviewed_by_username || "Manager";
+      const by =
+        req.responded_by_username ||
+        req.reviewed_by_username ||
+        "Manager";
       const base = req.status === "REJECTED" ? "Rejected" : "Reviewed";
       out.push({
         ts: reviewedTs,
-        text: `${base} by ${by}${req.status === "REJECTED" ? "" : ""}`
+        text: `${base} by ${by}`
       });
     }
 
-    // Final Approved has no timestamp in your payload, so don’t fabricate it.
-    // We still show status line elsewhere.
-
-    // Sort by time if multiple
     out.sort((a, b) => new Date(a.ts) - new Date(b.ts));
     return out;
   }, [req]);
 
-  const confirmAction = (title, message) => {
-    // Minimal modal without adding new dependencies
-    return window.confirm(`${title}\n\n${message}`);
-  };
+  const confirmAction = (title, message) =>
+    window.confirm(`${title}\n\n${message}`);
 
   const submitDraft = async () => {
-    if (!confirmAction("Submit Request", "This will send your request to your manager for review.\nOnce submitted, you can’t edit it.")) {
+    if (
+      !confirmAction(
+        "Submit Request",
+        "This will send your request to your manager for review.\nOnce submitted, you can’t edit it."
+      )
+    )
       return;
-    }
+
     try {
       setActionLoading(true);
       await api.post(`/requests/${id}/submit`);
@@ -125,9 +126,14 @@ export default function RequestDetail() {
   };
 
   const finalApprove = async () => {
-    if (!confirmAction("Final Approve", "Final approval is irreversible.\nProceed only if you are sure.")) {
+    if (
+      !confirmAction(
+        "Final Approve",
+        "Final approval is irreversible.\nProceed only if you are sure."
+      )
+    )
       return;
-    }
+
     try {
       setActionLoading(true);
       await api.post(`/requests/${id}/final-approve`);
@@ -152,20 +158,20 @@ export default function RequestDetail() {
           {/* ===== HEADER ===== */}
           <div className="request-header">
             <h2 className="request-detail-title">{req.title}</h2>
-
             <span className={`status-badge ${statusClass(req.status)}`}>
               {humanStatus(req.status)}
             </span>
           </div>
 
-          {/* ===== TIER 1: STATUS TIMELINE ===== */}
+          {/* ===== STATUS TIMELINE (ANIMATED) ===== */}
           <div className={`status-timeline ${isRejected ? "rejected" : ""}`}>
             {STEPS.map((s, i) => {
               const isDone = i < stepIndex;
               const isActive = i === stepIndex && !isRejected;
               const isFuture = i > stepIndex && !isRejected;
+
               return (
-                <div
+                <motion.div
                   key={s}
                   className={[
                     "timeline-step",
@@ -173,10 +179,17 @@ export default function RequestDetail() {
                     isActive ? "active" : "",
                     isFuture ? "future" : ""
                   ].join(" ")}
+                  initial={{ opacity: 0, scale: 0.92 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{
+                    delay: i * 0.08,
+                    duration: 0.35,
+                    ease: "easeOut"
+                  }}
                 >
                   <div className="step-dot" />
                   <div className="step-label">{humanStatus(s)}</div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
@@ -193,24 +206,20 @@ export default function RequestDetail() {
               <label>Amount</label>
               <p>₹{req.amount}</p>
             </div>
-
             <div className="field">
               <label>Category</label>
               <p>{req.category}</p>
             </div>
-
             <div className="field">
               <label>Created On</label>
               <p>{fmtDateTime(req.created_at)}</p>
             </div>
-
             <div className="field">
               <label>Expense Date</label>
               <p>{fmtDate(req.date)}</p>
             </div>
           </div>
 
-          {/* ===== RESPONSE INFO ===== */}
           {(req.responded_at || req.reviewed_at) && (
             <div className="field">
               <label>Responded On</label>
@@ -225,24 +234,18 @@ export default function RequestDetail() {
             </div>
           )}
 
-          {/* ===== TIER 2: FILE PREVIEW META ===== */}
+          {/* ===== ATTACHMENT ===== */}
           <div className="attachment-row">
-            <div className="attachment-left">
+            <div>
               <div className="attachment-title">Attachment</div>
               <div className="attachment-sub">
                 {req.file_url ? `${fileInfo.label} attached` : "No attachment"}
               </div>
             </div>
-
             <div className="attachment-right">
               {req.file_url ? (
                 <>
-                  <a
-                    href={req.file_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="file-link"
-                  >
+                  <a href={req.file_url} target="_blank" rel="noreferrer" className="file-link">
                     View
                   </a>
                   <a
@@ -260,7 +263,7 @@ export default function RequestDetail() {
             </div>
           </div>
 
-          {/* ===== TIER 3: ACTIVITY LOG (NO BACKEND CHANGES) ===== */}
+          {/* ===== ACTIVITY ===== */}
           <div className="activity">
             <div className="activity-title">Activity</div>
             {activity.length === 0 ? (
@@ -277,48 +280,26 @@ export default function RequestDetail() {
             )}
           </div>
 
-          {/* ===== TIER 1/2/3/4: ACTIONS ===== */}
+          {/* ===== ACTIONS ===== */}
           <div className="actions">
             {isOwner && req.status === "DRAFT" && (
               <div className="action-block">
-                <button
-                  className="submit-btn"
-                  disabled={actionLoading}
-                  onClick={submitDraft}
-                >
+                <button className="submit-btn" disabled={actionLoading} onClick={submitDraft}>
                   {actionLoading ? "Submitting…" : "Submit Request"}
                 </button>
                 <div className="action-hint">
-                  This sends your request to your manager for review. After submitting, editing is locked.
+                  This sends your request to your manager for review. Editing is locked after submission.
                 </div>
               </div>
             )}
 
             {isOwner && req.status === "MANAGER_APPROVED" && (
               <div className="action-block">
-                <button
-                  className="save-btn"
-                  disabled={actionLoading}
-                  onClick={finalApprove}
-                >
+                <button className="save-btn" disabled={actionLoading} onClick={finalApprove}>
                   {actionLoading ? "Approving…" : "Final Approve"}
                 </button>
                 <div className="action-hint">
-                  Final approval closes the request. This action is irreversible.
-                </div>
-              </div>
-            )}
-
-            {/* Disabled buttons for invalid states (Tier 1 clarity) */}
-            {isOwner && (req.status === "SUBMITTED" || req.status === "FINAL_APPROVED") && (
-              <div className="action-block">
-                <button className="disabled-btn" disabled>
-                  No actions available
-                </button>
-                <div className="action-hint">
-                  {req.status === "SUBMITTED"
-                    ? "Waiting for manager review."
-                    : "This request is already finalized."}
+                  Final approval is irreversible.
                 </div>
               </div>
             )}
