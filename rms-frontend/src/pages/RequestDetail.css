@@ -149,3 +149,34 @@
   padding: 2rem;
   text-align: center;
 }
+
+/* ===== Submit Button Alignment ===== */
+.actions {
+  margin-top: 1rem;
+  justify-content: flex-end;
+}
+
+.submit-btn {
+  background: #ff8040;
+  color: #001bb7;
+  border: none;
+  padding: 0.6rem 1.8rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.submit-btn:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 600px) {
+  .actions {
+    justify-content: center;
+  }
+
+  .submit-btn {
+    width: 100%;
+  }
+}
