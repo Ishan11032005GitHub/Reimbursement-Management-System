@@ -27,14 +27,86 @@ router.post("/register", async (req, res) => {
 
       const hash = await bcrypt.hash(password, 10);
 
+      const verifyToken = crypto.randomBytes(32).toString("hex");
+      const verifyTokenHash = crypto
+        .createHash("sha256")
+        .update(verifyToken)
+        .digest("hex");
+
+      const expiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+
       db.query(
-        "INSERT INTO users (username, email, password_hash, role) VALUES (?, ?, ?, ?)",
-        [username, email, hash, safeRole],
-        (err) => {
+        `INSERT INTO users 
+         (username, email, password_hash, role, is_verified, verify_token_hash, verify_token_expiry)
+         VALUES (?, ?, ?, ?, false, ?, ?)`,
+        [username, email, hash, safeRole, verifyTokenHash, expiry],
+        async (err) => {
           if (err)
             return res.status(500).json({ message: "Insert failed" });
 
-          res.status(201).json({ message: "User created" });
+          const verifyUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verifyToken}`;
+
+          try {
+            await sendVerifyEmail(email, verifyUrl);
+          } catch (e) {
+            console.error("VERIFY EMAIL ERROR:", e);
+          }
+
+          res.status(201).json({
+            message: "Account created. Please verify your email."
+          });
+        }
+      );
+    }
+  );
+});
+
+router.post("/register", async (req, res) => {
+  const { username, email, password, role } = req.body;
+
+  if (!username || !email || !password)
+    return res.status(400).json({ message: "Missing fields" });
+
+  const safeRole = role === "MANAGER" ? "MANAGER" : "USER";
+
+  db.query(
+    "SELECT id FROM users WHERE username = ? OR email = ?",
+    [username, email],
+    async (err, rows) => {
+      if (err) return res.status(500).json({ message: "DB error" });
+      if (rows.length)
+        return res.status(409).json({ message: "User already exists" });
+
+      const hash = await bcrypt.hash(password, 10);
+
+      const verifyToken = crypto.randomBytes(32).toString("hex");
+      const verifyTokenHash = crypto
+        .createHash("sha256")
+        .update(verifyToken)
+        .digest("hex");
+
+      const expiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+
+      db.query(
+        `INSERT INTO users 
+         (username, email, password_hash, role, is_verified, verify_token_hash, verify_token_expiry)
+         VALUES (?, ?, ?, ?, false, ?, ?)`,
+        [username, email, hash, safeRole, verifyTokenHash, expiry],
+        async (err) => {
+          if (err)
+            return res.status(500).json({ message: "Insert failed" });
+
+          const verifyUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verifyToken}`;
+
+          try {
+            await sendVerifyEmail(email, verifyUrl);
+          } catch (e) {
+            console.error("VERIFY EMAIL ERROR:", e);
+          }
+
+          res.status(201).json({
+            message: "Account created. Please verify your email."
+          });
         }
       );
     }
@@ -87,7 +159,7 @@ router.post("/login", (req, res) => {
   );
 });
 
-const { sendResetEmail } = require("../utils/email");
+const { sendResetEmail, sendVerifyEmail } = require("../utils/email");
 
 /* =========================
    FORGOT PASSWORD (UNCHANGED)
