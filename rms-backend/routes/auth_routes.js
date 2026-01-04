@@ -95,14 +95,15 @@ const { sendResetEmail } = require("../utils/email");
 router.post("/forgot-password", (req, res) => {
   const { email } = req.body;
 
-  if (!email)
+  if (!email) {
     return res.status(400).json({ message: "Email required" });
+  }
 
   db.query(
     "SELECT id FROM users WHERE email = ?",
     [email],
     async (err, rows) => {
-      // Always return same response (prevent email enumeration)
+      // Always respond success
       if (err || !rows.length) {
         return res.json({
           message: "If account exists, reset link sent"
@@ -112,7 +113,6 @@ router.post("/forgot-password", (req, res) => {
       const userId = rows[0].id;
 
       const resetToken = crypto.randomBytes(32).toString("hex");
-
       const tokenHash = crypto
         .createHash("sha256")
         .update(resetToken)
@@ -125,20 +125,18 @@ router.post("/forgot-password", (req, res) => {
         [tokenHash, expiry, userId],
         async () => {
           try {
-            const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+            const resetUrl =
+              `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
             await sendResetEmail(email, resetUrl);
-
-            res.json({
-              message: "If account exists, reset link sent"
-            });
-          } catch (mailErr) {
-            console.error("EMAIL ERROR:", mailErr);
-
-            res.status(500).json({
-              message: "Failed to send email"
-            });
+          } catch (err) {
+            // Log only — NEVER fail the request
+            console.error("EMAIL ERROR:", err);
           }
+
+          return res.json({
+            message: "If account exists, reset link sent"
+          });
         }
       );
     }
