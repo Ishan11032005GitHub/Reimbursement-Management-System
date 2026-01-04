@@ -87,7 +87,7 @@ router.post("/login", (req, res) => {
   );
 });
 
-const { sendResetEmail } = require("../utils/emails");
+const { sendResetEmail } = require("../utils/email");
 
 /* =========================
    FORGOT PASSWORD (UNCHANGED)
