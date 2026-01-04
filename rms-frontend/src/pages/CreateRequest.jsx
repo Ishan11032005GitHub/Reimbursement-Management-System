@@ -1,8 +1,9 @@
-import { useState, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import Select from "react-select";
 import api from "../api/axios";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import "./CreateRequest.css";
 
 const categoryOptions = [
@@ -24,7 +25,6 @@ export default function CreateRequest() {
   const [file, setFile] = useState(null);
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const validate = () => {
     if (!title.trim()) return "Title is required";
@@ -34,13 +34,33 @@ export default function CreateRequest() {
     return null;
   };
 
+  const selectStyles = useMemo(
+    () => ({
+      control: (base) => ({
+        ...base,
+        borderRadius: 8,
+        borderColor: "#ccc",
+        minHeight: 40
+      })
+    }),
+    []
+  );
+
+  const resetForm = () => {
+    setTitle("");
+    setAmount("");
+    setDate("");
+    setCategory(null);
+    setFile(null);
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
   const submit = async (e) => {
     e.preventDefault();
-    setError("");
 
-    const msg = validate();
-    if (msg) {
-      setError(msg);
+    const err = validate();
+    if (err) {
+      toast.error(err);
       return;
     }
 
@@ -48,7 +68,7 @@ export default function CreateRequest() {
       setLoading(true);
 
       const formData = new FormData();
-      formData.append("title", title);
+      formData.append("title", title.trim());
       formData.append("amount", amount);
       formData.append("date", date);
       formData.append("category", category.value);
@@ -58,15 +78,16 @@ export default function CreateRequest() {
         headers: { "Content-Type": "multipart/form-data" }
       });
 
-      const requestId = res?.data?.id;
-      if (!requestId) {
-        throw new Error("Backend did not return request id");
-      }
+      toast.success("Request created");
 
-      // 🚀 Redirect to Open Request page
-      navigate(`/requests/${requestId}`);
-    } catch (err) {
-      setError(err?.response?.data?.message || "Failed to create request");
+      const newId = res.data?.id;
+      resetForm();
+
+      // Go directly to the created request (best UX)
+      if (newId) navigate(`/requests/${newId}`);
+      else navigate("/requests");
+    } catch (e2) {
+      toast.error(e2.response?.data?.message || "Failed to create request");
     } finally {
       setLoading(false);
     }
@@ -81,8 +102,6 @@ export default function CreateRequest() {
         <p className="create-subtitle">
           Fill in the details below to submit a new reimbursement request.
         </p>
-
-        {error && <p className="error-msg">{error}</p>}
 
         <form className="create-card" onSubmit={submit}>
           <div className="form-grid">
@@ -119,6 +138,7 @@ export default function CreateRequest() {
               onChange={setCategory}
               isSearchable
               isDisabled={loading}
+              styles={selectStyles}
             />
 
             <label>File upload</label>

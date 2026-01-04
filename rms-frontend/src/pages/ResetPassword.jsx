@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import api from "../api/axios";
 import "./Login.css";
 
 export default function ResetPassword() {
@@ -16,46 +17,31 @@ export default function ResetPassword() {
   const submit = async (e) => {
     e.preventDefault();
 
+    if (!token) {
+      toast.error("Invalid reset link");
+      return;
+    }
     if (!password || !confirm) {
       toast.error("All fields are required");
       return;
     }
-
     if (password !== confirm) {
       toast.error("Passwords do not match");
-      return;
-    }
-
-    if (!token) {
-      toast.error("Invalid reset link");
       return;
     }
 
     try {
       setLoading(true);
 
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/auth/reset-password`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            token,
-            newPassword: password
-          })
-        }
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.message);
+      await api.post("/auth/reset-password", {
+        token,
+        newPassword: password
+      });
 
       toast.success("Password reset successful");
       navigate("/login");
     } catch (err) {
-      toast.error(err.message || "Reset failed");
+      toast.error(err.response?.data?.message || "Reset failed");
     } finally {
       setLoading(false);
     }
