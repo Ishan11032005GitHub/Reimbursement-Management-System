@@ -97,7 +97,7 @@ export default function RequestDetail() {
           </div>
 
           {/* Submit button */}
-          {req.status === "DRAFT" &&
+          {(req.status === "DRAFT" || req.status === "MANAGER_APPROVED") &&
             req.created_by === user.id && (
               <button
                 onClick={() =>
