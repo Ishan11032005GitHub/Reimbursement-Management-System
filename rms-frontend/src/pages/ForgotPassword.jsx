@@ -51,9 +51,11 @@ export default function ForgotPassword() {
           disabled={loading}
         />
 
-        <button className="login-btn" disabled={loading}>
-          {loading ? "Sending…" : "Send Reset Link"}
+        <Link to="/reset-password">
+        <button className="login-btn">
+          Reset Password
         </button>
+        </Link>
 
         <p className="signup-text">
           <Link to="/login">Back to login</Link>
