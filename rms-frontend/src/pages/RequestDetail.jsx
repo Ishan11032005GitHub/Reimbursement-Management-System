@@ -136,52 +136,61 @@ export default function RequestDetail() {
             </div>
           </section>
 
-          {/* ================= DETAILS ================= */}
+          {/* ===== DETAILS + ACTIVITY (CORRECTED LAYOUT) ===== */}
           <section className="rd-section">
-            <h3 className="rd-section-title">Details</h3>
+            <div className="rd-two-col">
 
-            <div className="field-grid">
-              <div className="field">
-                <label>Amount</label>
-                <p>₹{req.amount}</p>
-              </div>
+              {/* ================= DETAILS ================= */}
+              <div>
+                <h3 className="rd-section-title">Details</h3>
 
-              <div className="field">
-                <label>Category</label>
-                <p>{req.category}</p>
-              </div>
+                <div className="field-grid">
+                  <div className="field">
+                    <label>Amount</label>
+                    <p>₹{req.amount}</p>
+                  </div>
 
-              <div className="field">
-                <label>Created On</label>
-                <p>{fmtDateTime(req.created_at)}</p>
-              </div>
+                  <div className="field">
+                    <label>Category</label>
+                    <p>{req.category}</p>
+                  </div>
 
-              <div className="field">
-                <label>Expense Date</label>
-                <p>{fmtDate(req.date)}</p>
-              </div>
+                  <div className="field">
+                    <label>Created On</label>
+                    <p>{fmtDateTime(req.created_at)}</p>
+                  </div>
 
-              {(req.responded_at || req.reviewed_at) && (
-                <div className="field">
-                  <label>Responded On</label>
-                  <p>{fmtDateTime(req.responded_at || req.reviewed_at)}</p>
+                  <div className="field">
+                    <label>Expense Date</label>
+                    <p>{fmtDate(req.date)}</p>
+                  </div>
+
+                  {(req.responded_at || req.reviewed_at) && (
+                    <div className="field">
+                      <label>Responded On</label>
+                      <p>{fmtDateTime(req.responded_at || req.reviewed_at)}</p>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
+
+              {/* ================= ACTIVITY ================= */}
+              <div>
+                <h3 className="rd-section-title">Activity Logs</h3>
+
+                <ul className="activity-list">
+                  {activity.map((a, idx) => (
+                    <li key={idx} className="activity-item">
+                      <span className="activity-ts">
+                        {fmtDateTime(a.ts)}
+                      </span>
+                      <span className="activity-text">{a.text}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
             </div>
-          </section>
-
-          {/* ================= ACTIVITY ================= */}
-          <section className="rd-section">
-            <h3 className="rd-section-title">Activity Logs</h3>
-
-            <ul className="activity-list">
-              {activity.map((a, idx) => (
-                <li key={idx} className="activity-item">
-                  <span className="activity-ts">{fmtDateTime(a.ts)}</span>
-                  <span className="activity-text">{a.text}</span>
-                </li>
-              ))}
-            </ul>
           </section>
 
           {/* ================= ACTIONS ================= */}
