@@ -66,7 +66,8 @@ export default function RequestDetail() {
 
   const isRejected = req?.status === "REJECTED";
 
-  const stepIndex = useMemo(() => {
+  /* ===== FIXED STEP INDEX ===== */
+  const currentIndex = useMemo(() => {
     if (!req) return -1;
     if (req.status === "REJECTED") {
       return STEPS.indexOf("SUBMITTED");
@@ -163,12 +164,18 @@ export default function RequestDetail() {
             </span>
           </div>
 
-          {/* ===== STATUS TIMELINE (ANIMATED) ===== */}
+          {/* ===== STATUS TIMELINE (FIXED) ===== */}
           <div className={`status-timeline ${isRejected ? "rejected" : ""}`}>
             {STEPS.map((s, i) => {
-              const isDone = i < stepIndex;
-              const isActive = i === stepIndex && !isRejected;
-              const isFuture = i > stepIndex && !isRejected;
+              const isDone =
+                req.status === "FINAL_APPROVED"
+                  ? i <= currentIndex
+                  : i < currentIndex;
+
+              const isActive =
+                req.status !== "FINAL_APPROVED" && i === currentIndex;
+
+              const isFuture = i > currentIndex;
 
               return (
                 <motion.div
@@ -245,7 +252,12 @@ export default function RequestDetail() {
             <div className="attachment-right">
               {req.file_url ? (
                 <>
-                  <a href={req.file_url} target="_blank" rel="noreferrer" className="file-link">
+                  <a
+                    href={req.file_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="file-link"
+                  >
                     View
                   </a>
                   <a
@@ -284,18 +296,27 @@ export default function RequestDetail() {
           <div className="actions">
             {isOwner && req.status === "DRAFT" && (
               <div className="action-block">
-                <button className="submit-btn" disabled={actionLoading} onClick={submitDraft}>
+                <button
+                  className="submit-btn"
+                  disabled={actionLoading}
+                  onClick={submitDraft}
+                >
                   {actionLoading ? "Submitting…" : "Submit Request"}
                 </button>
                 <div className="action-hint">
-                  This sends your request to your manager for review. Editing is locked after submission.
+                  This sends your request to your manager for review. Editing is
+                  locked after submission.
                 </div>
               </div>
             )}
 
             {isOwner && req.status === "MANAGER_APPROVED" && (
               <div className="action-block">
-                <button className="save-btn" disabled={actionLoading} onClick={finalApprove}>
+                <button
+                  className="save-btn"
+                  disabled={actionLoading}
+                  onClick={finalApprove}
+                >
                   {actionLoading ? "Approving…" : "Final Approve"}
                 </button>
                 <div className="action-hint">
