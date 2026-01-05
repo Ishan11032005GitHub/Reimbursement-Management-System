@@ -24,6 +24,20 @@ const fmtDateTime = (v) =>
       })
     : "—";
 
+const getFileType = (url) => {
+  if (!url) return { kind: "none" };
+  const clean = url.split("?")[0].toLowerCase();
+  if (clean.endsWith(".pdf")) return { kind: "pdf", label: "PDF" };
+  if (
+    clean.endsWith(".png") ||
+    clean.endsWith(".jpg") ||
+    clean.endsWith(".jpeg") ||
+    clean.endsWith(".webp")
+  )
+    return { kind: "image", label: "Image" };
+  return { kind: "file", label: "File" };
+};
+
 export default function RequestDetail() {
   const { id } = useParams();
   const { user } = useAuth();
@@ -34,6 +48,7 @@ export default function RequestDetail() {
   const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     api
       .get(`/requests/${id}`)
       .then((res) => setReq(res.data))
@@ -49,10 +64,19 @@ export default function RequestDetail() {
     return Number(req.created_by) === Number(user.id);
   }, [user, req]);
 
+  const isRejected = req?.status === "REJECTED";
+
   const stepIndex = useMemo(() => {
     if (!req) return -1;
+    if (req.status === "REJECTED") {
+      return STEPS.indexOf("SUBMITTED");
+    }
     return STEPS.indexOf(req.status);
   }, [req]);
+
+  const isFinal = req?.status === "FINAL_APPROVED";
+
+  const fileInfo = useMemo(() => getFileType(req?.file_url), [req]);
 
   const activity = useMemo(() => {
     if (!req) return [];
@@ -62,26 +86,63 @@ export default function RequestDetail() {
       out.push({ ts: req.created_at, text: "Request created" });
     }
 
-    if (req.responded_at || req.reviewed_at) {
+    const reviewedTs = req.responded_at || req.reviewed_at;
+    if (reviewedTs) {
+      const by =
+        req.responded_by_username ||
+        req.reviewed_by_username ||
+        "Manager";
+      const base = req.status === "REJECTED" ? "Rejected" : "Reviewed";
       out.push({
-        ts: req.responded_at || req.reviewed_at,
-        text: "Request reviewed"
+        ts: reviewedTs,
+        text: `${base} by ${by}`
       });
     }
 
+    out.sort((a, b) => new Date(a.ts) - new Date(b.ts));
     return out;
   }, [req]);
 
+  const confirmAction = (title, message) =>
+    window.confirm(`${title}\n\n${message}`);
+
   const submitDraft = async () => {
-    if (!window.confirm("Submit this request?")) return;
+    if (
+      !confirmAction(
+        "Submit Request",
+        "This will send your request to your manager for review.\nOnce submitted, you can’t edit it."
+      )
+    )
+      return;
 
     try {
       setActionLoading(true);
       await api.post(`/requests/${id}/submit`);
       toast.success("Request submitted");
       navigate("/requests");
-    } catch {
-      toast.error("Submit failed");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Submit failed");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const finalApprove = async () => {
+    if (
+      !confirmAction(
+        "Final Approve",
+        "Final approval is irreversible.\nProceed only if you are sure."
+      )
+    )
+      return;
+
+    try {
+      setActionLoading(true);
+      await api.post(`/requests/${id}/final-approve`);
+      toast.success("Final approval done");
+      navigate("/requests");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Final approval failed");
     } finally {
       setActionLoading(false);
     }
@@ -97,110 +158,135 @@ export default function RequestDetail() {
       <div className="request-detail-container">
         <div className="request-card">
 
-          {/* ================= HEADER ================= */}
-          <section className="rd-section">
-            <div className="rd-header-row">
-              <h2 className="rd-title">{req.title}</h2>
-              <span className={`status-pill ${statusClass(req.status)}`}>
-                {humanStatus(req.status)}
-              </span>
+          {/* ===== HEADER ===== */}
+          <div className="request-header">
+            <h2 className="request-detail-title">{req.title}</h2>
+            <span className={`status-badge ${statusClass(req.status)}`}>
+              {humanStatus(req.status)}
+            </span>
+          </div>
+
+          {/* ===== STATUS TIMELINE ===== */}
+          <div className={`status-timeline ${isRejected ? "rejected" : ""}`}>
+            {STEPS.map((s, i) => {
+              const isDone = isFinal ? i <= stepIndex : i < stepIndex;
+              const isActive = !isFinal && i === stepIndex && !isRejected;
+              const isFuture = !isFinal && i > stepIndex && !isRejected;
+
+              return (
+                <motion.div
+                  key={s}
+                  className={[
+                    "timeline-step",
+                    isDone ? "done" : "",
+                    isActive ? "active" : "",
+                    isFuture ? "future" : ""
+                  ].join(" ")}
+                  initial={{ opacity: 0, scale: 0.92 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{
+                    delay: i * 0.08,
+                    duration: 0.35,
+                    ease: "easeOut"
+                  }}
+                >
+                  <div className="step-dot" />
+                  <div className="step-label">{humanStatus(s)}</div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* ===== DETAILS ===== */}
+          <div className="field-grid">
+            <div className="field">
+              <label>Amount</label>
+              <p>₹{req.amount}</p>
             </div>
-          </section>
-
-          {/* ================= STATES ================= */}
-          <section className="rd-section">
-            <h3 className="rd-section-title">States</h3>
-
-            <div className="status-timeline">
-              {STEPS.map((s, i) => {
-                const isFinal = req.status === "FINAL_APPROVED";
-                const isDone = i < stepIndex || (isFinal && i === stepIndex);
-                const isActive = i === stepIndex && !isFinal;
-                const isFuture = i > stepIndex;
-
-                return (
-                  <motion.div
-                    key={s}
-                    className={[
-                      "timeline-step",
-                      isDone ? "done" : "",
-                      isActive ? "active" : "",
-                      isFuture ? "future" : ""
-                    ].join(" ")}
-                  >
-                    <div className="step-dot" />
-                    <div className="step-label">{humanStatus(s)}</div>
-                  </motion.div>
-                );
-              })}
+            <div className="field">
+              <label>Category</label>
+              <p>{req.category}</p>
             </div>
-          </section>
+            <div className="field">
+              <label>Created On</label>
+              <p>{fmtDateTime(req.created_at)}</p>
+            </div>
+            <div className="field">
+              <label>Expense Date</label>
+              <p>{fmtDate(req.date)}</p>
+            </div>
+          </div>
 
-          {/* ================= DETAILS ================= */}
-          <section className="rd-section">
-            <h3 className="rd-section-title">Details</h3>
+          {(req.responded_at || req.reviewed_at) && (
+            <div className="field">
+              <label>Responded On</label>
+              <p>{fmtDateTime(req.responded_at || req.reviewed_at)}</p>
+            </div>
+          )}
 
-            <div className="field-grid">
-              <div className="field">
-                <label>Amount</label>
-                <p>₹{req.amount}</p>
+          {/* ===== ATTACHMENT ===== */}
+          <div className="attachment-row">
+            <div>
+              <div className="attachment-title">Attachment</div>
+              <div className="attachment-sub">
+                {req.file_url ? `${fileInfo.label} attached` : "No attachment"}
               </div>
-
-              <div className="field">
-                <label>Category</label>
-                <p>{req.category}</p>
-              </div>
-
-              <div className="field">
-                <label>Created On</label>
-                <p>{fmtDateTime(req.created_at)}</p>
-              </div>
-
-              <div className="field">
-                <label>Expense Date</label>
-                <p>{fmtDate(req.date)}</p>
-              </div>
-
-              {(req.responded_at || req.reviewed_at) && (
-                <div className="field">
-                  <label>Responded On</label>
-                  <p>{fmtDateTime(req.responded_at || req.reviewed_at)}</p>
-                </div>
+            </div>
+            <div className="attachment-right">
+              {req.file_url ? (
+                <>
+                  <a href={req.file_url} target="_blank" rel="noreferrer" className="file-link">
+                    View
+                  </a>
+                  <a href={req.file_url} target="_blank" rel="noreferrer" className="file-link secondary">
+                    Download
+                  </a>
+                </>
+              ) : (
+                <span className="muted">—</span>
               )}
             </div>
-          </section>
+          </div>
 
-          {/* ================= ACTIVITY ================= */}
-          <section className="rd-section">
-            <h3 className="rd-section-title">Activity Logs</h3>
+          {/* ===== ACTIVITY ===== */}
+          <div className="activity">
+            <div className="activity-title">Activity</div>
+            {activity.length === 0 ? (
+              <div className="activity-empty">No activity yet.</div>
+            ) : (
+              <ul className="activity-list">
+                {activity.map((a, idx) => (
+                  <li key={idx} className="activity-item">
+                    <span className="activity-ts">{fmtDateTime(a.ts)}</span>
+                    <span className="activity-text">{a.text}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
 
-            <ul className="activity-list">
-              {activity.map((a, idx) => (
-                <li key={idx} className="activity-item">
-                  <span className="activity-ts">{fmtDateTime(a.ts)}</span>
-                  <span className="activity-text">{a.text}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          {/* ================= ACTIONS ================= */}
-          <section className="rd-section rd-footer">
+          {/* ===== ACTIONS ===== */}
+          <div className="actions">
             {isOwner && req.status === "DRAFT" && (
-              <button
-                className="submit-btn"
-                disabled={actionLoading}
-                onClick={submitDraft}
-              >
-                {actionLoading ? "Submitting…" : "Submit Request"}
-              </button>
+              <div className="action-block">
+                <button className="submit-btn" disabled={actionLoading} onClick={submitDraft}>
+                  {actionLoading ? "Submitting…" : "Submit Request"}
+                </button>
+              </div>
+            )}
+
+            {isOwner && req.status === "MANAGER_APPROVED" && (
+              <div className="action-block">
+                <button className="save-btn" disabled={actionLoading} onClick={finalApprove}>
+                  {actionLoading ? "Approving…" : "Final Approve"}
+                </button>
+              </div>
             )}
 
             <Link className="back-link" to="/requests">
-              ← Back to My Requests
+              Back to My Requests
             </Link>
-          </section>
-
+          </div>
         </div>
       </div>
     </>
