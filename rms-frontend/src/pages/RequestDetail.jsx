@@ -77,6 +77,31 @@ export default function RequestDetail() {
 
   const fileInfo = useMemo(() => getFileType(req?.file_url), [req]);
 
+  const activity = useMemo(() => {
+    if (!req) return [];
+    const out = [];
+
+    if (req.created_at) {
+      out.push({ ts: req.created_at, text: "Request created" });
+    }
+
+    const reviewedTs = req.responded_at || req.reviewed_at;
+    if (reviewedTs) {
+      const by =
+        req.responded_by_username ||
+        req.reviewed_by_username ||
+        "Manager";
+      const base = req.status === "REJECTED" ? "Rejected" : "Reviewed";
+      out.push({
+        ts: reviewedTs,
+        text: `${base} by ${by}`
+      });
+    }
+
+    out.sort((a, b) => new Date(a.ts) - new Date(b.ts));
+    return out;
+  }, [req]);
+
   const confirmAction = (title, message) =>
     window.confirm(`${title}\n\n${message}`);
 
@@ -160,9 +185,13 @@ export default function RequestDetail() {
                     isActive ? "active" : "",
                     isFuture ? "future" : ""
                   ].join(" ")}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.25, delay: i * 0.06 }}
+                  initial={{ opacity: 0, scale: 0.92 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{
+                    delay: i * 0.08,
+                    duration: 0.35,
+                    ease: "easeOut"
+                  }}
                 >
                   <div className="step-dot" />
                   <div className="step-label">{humanStatus(s)}</div>
@@ -201,21 +230,13 @@ export default function RequestDetail() {
           {/* ===== ACTIONS ===== */}
           <div className="actions">
             {isOwner && req.status === "DRAFT" && (
-              <button
-                className="submit-btn"
-                disabled={actionLoading}
-                onClick={submitDraft}
-              >
+              <button className="submit-btn" onClick={submitDraft}>
                 Submit Request
               </button>
             )}
 
             {isOwner && req.status === "MANAGER_APPROVED" && (
-              <button
-                className="save-btn"
-                disabled={actionLoading}
-                onClick={finalApprove}
-              >
+              <button className="save-btn" onClick={finalApprove}>
                 Final Approve
               </button>
             )}
