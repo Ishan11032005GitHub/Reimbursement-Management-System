@@ -167,13 +167,8 @@ export default function RequestDetail() {
           {/* ===== STATUS TIMELINE (FIXED) ===== */}
           <div className={`status-timeline ${isRejected ? "rejected" : ""}`}>
             {STEPS.map((s, i) => {
-              const isDone =
-                req.status === "FINAL_APPROVED"
-                  ? i <= currentIndex
-                  : i < currentIndex;
-
-              const isActive =
-                req.status !== "FINAL_APPROVED" && i === currentIndex;
+              const isDone = i < currentIndex;
+const isActive = i === currentIndex;
 
               const isFuture = i > currentIndex;
 
