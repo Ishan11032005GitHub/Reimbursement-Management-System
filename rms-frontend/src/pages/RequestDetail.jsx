@@ -54,8 +54,6 @@ export default function RequestDetail() {
     return STEPS.indexOf(req.status);
   }, [req]);
 
-  const isFinal = req?.status === "FINAL_APPROVED";
-
   const activity = useMemo(() => {
     if (!req) return [];
     const out = [];
@@ -115,10 +113,10 @@ export default function RequestDetail() {
 
             <div className="status-timeline">
               {STEPS.map((s, i) => {
-                // 🔑 FIXED COLOR LOGIC
-                const isDone = isFinal ? i <= stepIndex : i < stepIndex;
-                const isActive = !isFinal && i === stepIndex;
-                const isFuture = !isFinal && i > stepIndex;
+                const isFinal = req.status === "FINAL_APPROVED";
+                const isDone = i < stepIndex || (isFinal && i === stepIndex);
+                const isActive = i === stepIndex && !isFinal;
+                const isFuture = i > stepIndex;
 
                 return (
                   <motion.div
