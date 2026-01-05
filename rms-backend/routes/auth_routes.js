@@ -4,13 +4,13 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const db = require("../db");
 
-/* ✅ EMAIL HELPERS — IMPORTED ON TOP */
-const { sendResetEmail, sendVerifyEmail } = require("../utils/email");
+/* ✅ ONLY RESET EMAIL HELPER */
+const { sendResetEmail } = require("../utils/email");
 
 const router = express.Router();
 
 /* =========================
-   REGISTER (EMAIL VERIFICATION ENABLED)
+   REGISTER (NO EMAIL VERIFICATION)
 ========================= */
 router.post("/register", async (req, res) => {
   const { username, email, password, role } = req.body;
@@ -32,36 +32,17 @@ router.post("/register", async (req, res) => {
 
       const passwordHash = await bcrypt.hash(password, 10);
 
-      const verifyToken = crypto.randomBytes(32).toString("hex");
-      const verifyTokenHash = crypto
-        .createHash("sha256")
-        .update(verifyToken)
-        .digest("hex");
-
-      const expiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
-
       db.query(
-        `INSERT INTO users
-         (username, email, password_hash, role, is_verified, verify_token_hash, verify_token_expiry)
-         VALUES (?, ?, ?, ?, false, ?, ?)`,
-        [username, email, passwordHash, safeRole, verifyTokenHash, expiry],
-        async (err) => {
+        `INSERT INTO users (username, email, password_hash, role)
+         VALUES (?, ?, ?, ?)`,
+        [username, email, passwordHash, safeRole],
+        (err) => {
           if (err) {
             return res.status(500).json({ message: "Insert failed" });
           }
 
-          const verifyUrl =
-            `${process.env.FRONTEND_URL}/verify-email?token=${verifyToken}`;
-
-          try {
-            await sendVerifyEmail(email, verifyUrl);
-          } catch (e) {
-            console.error("VERIFY EMAIL ERROR:", e);
-            // ❗ Do NOT fail registration because of email
-          }
-
           res.status(201).json({
-            message: "Account created. Please verify your email."
+            message: "Account created successfully"
           });
         }
       );
@@ -70,52 +51,7 @@ router.post("/register", async (req, res) => {
 });
 
 /* =========================
-   EMAIL VERIFICATION
-========================= */
-router.get("/verify-email", (req, res) => {
-  const { token } = req.query;
-  if (!token) {
-    return res.status(400).json({ message: "Invalid token" });
-  }
-
-  const tokenHash = crypto
-    .createHash("sha256")
-    .update(token)
-    .digest("hex");
-
-  db.query(
-    `SELECT id, verify_token_expiry
-     FROM users
-     WHERE verify_token_hash = ?`,
-    [tokenHash],
-    (err, rows) => {
-      if (err || !rows.length) {
-        return res.status(400).json({ message: "Invalid or expired token" });
-      }
-
-      const user = rows[0];
-
-      if (new Date(user.verify_token_expiry) < new Date()) {
-        return res.status(400).json({ message: "Token expired" });
-      }
-
-      db.query(
-        `UPDATE users
-         SET is_verified = true,
-             verify_token_hash = NULL,
-             verify_token_expiry = NULL
-         WHERE id = ?`,
-        [user.id],
-        () => {
-          res.json({ message: "Email verified successfully" });
-        }
-      );
-    }
-  );
-});
-
-/* =========================
-   LOGIN (BLOCK UNVERIFIED USERS)
+   LOGIN
 ========================= */
 router.post("/login", (req, res) => {
   const { identifier, password } = req.body;
@@ -138,12 +74,6 @@ router.post("/login", (req, res) => {
 
       if (!match) {
         return res.status(401).json({ message: "Invalid credentials" });
-      }
-
-      if (!user.is_verified) {
-        return res.status(403).json({
-          message: "Please verify your email before logging in"
-        });
       }
 
       const token = jwt.sign(
@@ -170,7 +100,7 @@ router.post("/login", (req, res) => {
 });
 
 /* =========================
-   FORGOT PASSWORD (SAFE)
+   FORGOT PASSWORD (SAFE + SILENT)
 ========================= */
 router.post("/forgot-password", (req, res) => {
   const { email } = req.body;
@@ -210,8 +140,8 @@ router.post("/forgot-password", (req, res) => {
 
             await sendResetEmail(email, resetUrl);
           } catch (err) {
+            // Log only — never fail request
             console.error("EMAIL ERROR:", err);
-            // ❗ Never fail forgot-password
           }
 
           return res.json({
