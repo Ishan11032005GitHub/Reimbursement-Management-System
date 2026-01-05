@@ -350,3 +350,54 @@
   padding: 2rem;
   text-align: center;
 }
+
+/* ===== Timeline Base ===== */
+.timeline-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Dot */
+.step-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #cfcfcf;
+  transition: all 0.3s ease;
+}
+
+/* Label */
+.step-label {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #777;
+}
+
+/* ===== DONE (GREEN) ===== */
+.timeline-step.done .step-dot {
+  background: #2e7d32;
+}
+
+.timeline-step.done .step-label {
+  color: #2e7d32;
+}
+
+/* ===== ACTIVE (BLUE) ===== */
+.timeline-step.active .step-dot {
+  background: #0046ff;
+  box-shadow: 0 0 0 4px rgba(0, 70, 255, 0.15);
+}
+
+.timeline-step.active .step-label {
+  color: #0046ff;
+}
+
+/* ===== FUTURE ===== */
+.timeline-step.future .step-dot {
+  background: #cfcfcf;
+}
+
+.timeline-step.future .step-label {
+  color: #999;
+}
