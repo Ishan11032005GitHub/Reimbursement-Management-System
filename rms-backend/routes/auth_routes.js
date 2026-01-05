@@ -207,4 +207,46 @@ router.post("/reset-password", async (req, res) => {
   );
 });
 
+/* =========================
+   RESET PASSWORD — DIRECT (NO EMAIL, NO TOKEN)
+   ⚠️ INSECURE — DEMO ONLY
+========================= */
+router.post("/reset-password-direct", async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  if (!email || !newPassword) {
+    return res.status(400).json({ message: "Missing fields" });
+  }
+
+  if (newPassword.length < 8) {
+    return res.status(400).json({
+      message: "Password must be at least 8 characters"
+    });
+  }
+
+  try {
+    const hash = await bcrypt.hash(newPassword, 10);
+
+    db.query(
+      "UPDATE users SET password_hash = ? WHERE email = ?",
+      [hash, email],
+      (err, result) => {
+        if (err) {
+          console.error("RESET ERROR:", err);
+          return res.status(500).json({ message: "DB error" });
+        }
+
+        // Silent success (don’t leak existence)
+        return res.json({
+          message: "Password reset successful"
+        });
+      }
+    );
+  } catch (err) {
+    console.error("RESET ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 module.exports = router;
+

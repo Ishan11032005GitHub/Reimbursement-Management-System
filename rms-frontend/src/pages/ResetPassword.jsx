@@ -7,7 +7,7 @@ import "./Login.css";
 
 export default function ResetPassword() {
   const [params] = useSearchParams();
-  const token = params.get("token");
+  const email = params.get("email");
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -16,8 +16,8 @@ export default function ResetPassword() {
   const submit = async (e) => {
     e.preventDefault();
 
-    if (!token) {
-      toast.error("Invalid or missing token");
+    if (!email) {
+      toast.error("Missing email");
       return;
     }
 
@@ -34,14 +34,12 @@ export default function ResetPassword() {
     try {
       setLoading(true);
 
-      await api.post("/auth/reset-password", {
-        token,
+      await api.post("/auth/reset-password-direct", {
+        email,
         newPassword: password
       });
 
       toast.success("Password reset successful. You can log in now.");
-      setPassword("");
-      setConfirm("");
     } catch (err) {
       toast.error(err.response?.data?.message || "Reset failed");
     } finally {
@@ -59,7 +57,6 @@ export default function ResetPassword() {
           placeholder="New password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          disabled={loading}
         />
 
         <input
@@ -67,7 +64,6 @@ export default function ResetPassword() {
           placeholder="Confirm password"
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
-          disabled={loading}
         />
 
         <button className="login-btn" disabled={loading}>
