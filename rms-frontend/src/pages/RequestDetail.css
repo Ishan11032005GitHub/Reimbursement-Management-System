@@ -100,3 +100,13 @@
   font-weight: 600;
   color: #1d4ed8;
 }
+
+/* ===== FINAL STATE OVERRIDE ===== */
+.timeline-step.done.active .step-dot {
+  background: #2e7d32 !important;
+  box-shadow: none !important;
+}
+
+.timeline-step.done.active .step-label {
+  color: #2e7d32 !important;
+}
