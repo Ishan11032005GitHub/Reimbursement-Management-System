@@ -40,3 +40,288 @@
 .timeline-step.future .step-dot {
   background: #c9c9c9;
 }
+<<<<<<< HEAD
+=======
+
+.status-timeline.rejected .timeline-step .step-dot {
+  background: #f44336;
+}
+.status-timeline.rejected .timeline-step {
+  border-color: rgba(244,67,54,0.18);
+}
+
+.rejection-banner {
+  background: #fff3f3;
+  border-left: 4px solid #f44336;
+  padding: 0.9rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+/* ===== Fields ===== */
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 18px;
+}
+
+@media (max-width: 600px) {
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field label {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #555;
+}
+
+.field p {
+  margin: 0.25rem 0 0;
+  font-weight: 700;
+  color: #111;
+}
+
+.manager-comment {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 0.9rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.manager-comment-title {
+  font-weight: 900;
+  color: #001bb7;
+  margin-bottom: 0.4rem;
+}
+
+/* ===== Attachment row ===== */
+.attachment-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  background: rgba(255,255,255,0.6);
+  border-radius: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+.attachment-title {
+  font-weight: 900;
+  color: #001bb7;
+}
+
+.attachment-sub {
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.attachment-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.file-link {
+  color: #0046ff;
+  font-weight: 900;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(0,70,255,0.10);
+}
+
+.file-link:hover {
+  text-decoration: underline;
+}
+
+.file-link.secondary {
+  background: rgba(0,0,0,0.06);
+  color: #0b1c2d;
+}
+
+.muted {
+  color: #666;
+  font-weight: 700;
+}
+
+/* ===== Activity ===== */
+.activity {
+  background: rgba(255,255,255,0.65);
+  border-radius: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+.activity-title {
+  font-weight: 900;
+  color: #001bb7;
+  margin-bottom: 0.6rem;
+}
+
+.activity-empty {
+  color: #666;
+  font-style: italic;
+}
+
+.activity-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.activity-item {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+@media (max-width: 600px) {
+  .activity-item {
+    grid-template-columns: 1fr;
+  }
+}
+
+.activity-ts {
+  font-weight: 900;
+  color: #333;
+  font-size: 0.85rem;
+}
+
+.activity-text {
+  color: #111;
+  font-weight: 700;
+}
+
+/* ===== Actions ===== */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  margin-top: 0.2rem;
+}
+
+.action-block {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.action-hint {
+  font-size: 0.9rem;
+  color: #333;
+  text-align: center;
+  opacity: 0.9;
+}
+
+.submit-btn,
+.save-btn,
+.disabled-btn {
+  border: none;
+  padding: 0.85rem 1.2rem;
+  border-radius: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+}
+
+.submit-btn {
+  background: #ff8040;
+  color: #001bb7;
+}
+
+.save-btn {
+  background: #0046ff;
+  color: #fff;
+}
+
+.disabled-btn {
+  background: rgba(0,0,0,0.10);
+  color: #333;
+  cursor: not-allowed;
+}
+
+.submit-btn:disabled,
+.save-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.back-link {
+  font-weight: 900;
+  color: #0046ff;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.page-loading {
+  padding: 2rem;
+  text-align: center;
+}
+
+/* ===== Timeline Base ===== */
+.timeline-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Dot */
+.step-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #cfcfcf;
+  transition: all 0.3s ease;
+}
+
+/* Label */
+.step-label {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #777;
+}
+
+/* ===== DONE (GREEN) ===== */
+.timeline-step.done .step-dot {
+  background: #2e7d32;
+}
+
+.timeline-step.done .step-label {
+  color: #2e7d32;
+}
+
+/* ===== ACTIVE (BLUE) ===== */
+.timeline-step.active .step-dot {
+  background: #0046ff;
+  box-shadow: 0 0 0 4px rgba(0, 70, 255, 0.15);
+}
+
+.timeline-step.active .step-label {
+  color: #0046ff;
+}
+
+/* ===== FUTURE ===== */
+.timeline-step.future .step-dot {
+  background: #cfcfcf;
+}
+
+.timeline-step.future .step-label {
+  color: #999;
+}
+>>>>>>> bb055d32f79ab066e5c9caab7c6a70995f9ac549
