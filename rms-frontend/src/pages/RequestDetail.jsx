@@ -67,8 +67,7 @@ export default function RequestDetail() {
   const isRejected = req?.status === "REJECTED";
   const isFinalApproved = req?.status === "FINAL_APPROVED";
 
-  /* ===== FIXED STEP INDEX ===== */
-  const currentIndex = useMemo(() => {
+  const stepIndex = useMemo(() => {
     if (!req) return -1;
     if (req.status === "REJECTED") {
       return STEPS.indexOf("SUBMITTED");
@@ -165,7 +164,6 @@ export default function RequestDetail() {
             </span>
           </div>
 
-<<<<<<< HEAD
           {/* ===== STATUS TIMELINE ===== */}
           <div className={`status-timeline ${isRejected ? "rejected" : ""}`}>
             {STEPS.map((s, i) => {
@@ -177,15 +175,6 @@ export default function RequestDetail() {
 
               const isFuture =
                 !isFinalApproved && !isRejected && i > stepIndex;
-=======
-          {/* ===== STATUS TIMELINE (FIXED) ===== */}
-          <div className={`status-timeline ${isRejected ? "rejected" : ""}`}>
-            {STEPS.map((s, i) => {
-              const isDone = i < currentIndex;
-const isActive = i === currentIndex;
-
-              const isFuture = i > currentIndex;
->>>>>>> bb055d32f79ab066e5c9caab7c6a70995f9ac549
 
               return (
                 <motion.div
@@ -238,7 +227,6 @@ const isActive = i === currentIndex;
             </div>
           )}
 
-<<<<<<< HEAD
           {/* ===== ACTIONS ===== */}
           <div className="actions">
             {isOwner && req.status === "DRAFT" && (
@@ -251,97 +239,6 @@ const isActive = i === currentIndex;
               <button className="save-btn" onClick={finalApprove}>
                 Final Approve
               </button>
-=======
-          {req.manager_comment && (
-            <div className="manager-comment">
-              <div className="manager-comment-title">Manager Comment</div>
-              <p>{req.manager_comment}</p>
-            </div>
-          )}
-
-          {/* ===== ATTACHMENT ===== */}
-          <div className="attachment-row">
-            <div>
-              <div className="attachment-title">Attachment</div>
-              <div className="attachment-sub">
-                {req.file_url ? `${fileInfo.label} attached` : "No attachment"}
-              </div>
-            </div>
-            <div className="attachment-right">
-              {req.file_url ? (
-                <>
-                  <a
-                    href={req.file_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="file-link"
-                  >
-                    View
-                  </a>
-                  <a
-                    href={req.file_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="file-link secondary"
-                  >
-                    Download
-                  </a>
-                </>
-              ) : (
-                <span className="muted">—</span>
-              )}
-            </div>
-          </div>
-
-          {/* ===== ACTIVITY ===== */}
-          <div className="activity">
-            <div className="activity-title">Activity</div>
-            {activity.length === 0 ? (
-              <div className="activity-empty">No activity yet.</div>
-            ) : (
-              <ul className="activity-list">
-                {activity.map((a, idx) => (
-                  <li key={idx} className="activity-item">
-                    <span className="activity-ts">{fmtDateTime(a.ts)}</span>
-                    <span className="activity-text">{a.text}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          {/* ===== ACTIONS ===== */}
-          <div className="actions">
-            {isOwner && req.status === "DRAFT" && (
-              <div className="action-block">
-                <button
-                  className="submit-btn"
-                  disabled={actionLoading}
-                  onClick={submitDraft}
-                >
-                  {actionLoading ? "Submitting…" : "Submit Request"}
-                </button>
-                <div className="action-hint">
-                  This sends your request to your manager for review. Editing is
-                  locked after submission.
-                </div>
-              </div>
-            )}
-
-            {isOwner && req.status === "MANAGER_APPROVED" && (
-              <div className="action-block">
-                <button
-                  className="save-btn"
-                  disabled={actionLoading}
-                  onClick={finalApprove}
-                >
-                  {actionLoading ? "Approving…" : "Final Approve"}
-                </button>
-                <div className="action-hint">
-                  Final approval is irreversible.
-                </div>
-              </div>
->>>>>>> bb055d32f79ab066e5c9caab7c6a70995f9ac549
             )}
 
             <Link className="back-link" to="/requests">
