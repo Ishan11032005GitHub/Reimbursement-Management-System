@@ -23,7 +23,7 @@ export default function ForgotPassword() {
       await api.post("/auth/forgot-password", { email });
 
       toast.success(
-        "If an account exists, a reset link has been generated"
+        "If an account exists, a reset link has been sent to your email."
       );
 
       setEmail("");
@@ -51,11 +51,10 @@ export default function ForgotPassword() {
           disabled={loading}
         />
 
-        <Link to="/reset-password">
-        <button className="login-btn">
-          Reset Password
+        {/* ✅ SUBMIT BUTTON — NOT A LINK */}
+        <button className="login-btn" disabled={loading}>
+          {loading ? "Sending…" : "Send Reset Link"}
         </button>
-        </Link>
 
         <p className="signup-text">
           <Link to="/login">Back to login</Link>
