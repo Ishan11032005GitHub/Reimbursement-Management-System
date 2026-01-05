@@ -45,3 +45,58 @@
 .timeline-step.future .step-dot {
   background: #c9c9c9;
 }
+
+.rd-section {
+  padding: 20px 0;
+  border-bottom: 1px solid #e6eef5;
+}
+
+.rd-section:last-child {
+  border-bottom: none;
+}
+
+.rd-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* HEADER */
+.rd-header {
+  padding-bottom: 16px;
+}
+
+.rd-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.rd-title {
+  font-size: 26px;
+  font-weight: 800;
+}
+
+/* STATUS PILL */
+.status-pill {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14px;
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* FOOTER */
+.rd-footer {
+  padding-top: 16px;
+  text-align: left;
+}
+
+.back-link {
+  font-weight: 600;
+  color: #1d4ed8;
+}
