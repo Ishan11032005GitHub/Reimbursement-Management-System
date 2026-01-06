@@ -15,13 +15,17 @@
 }
 
 /* SECTION */
-.rd-section {
+.rd-section-title {
   width: 100%;
-  padding: 24px 0;
-  border-bottom: 1px solid #e6eef5;
-  display: flex;
-  justify-content: center; /* 🔴 key fix */
+  text-align: center;   /* ← THIS IS THE FIX */
+  font-size: 13px;
+  font-weight: 800;
+  color: #1e3a8a;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
+
 .rd-section:last-child {
   border-bottom: none;
 }
