@@ -157,3 +157,18 @@
   color: #1d4ed8;
   text-decoration: none;
 }
+.rd-section {
+  width: 100%;
+  display: block;
+}
+.rd-panel {
+  width: 100%;
+  max-width: 100%;
+}
+
+
+.rd-footer {
+  margin-top: 24px;
+  border-top: 1px solid #e6eef5;
+  padding-top: 24px;
+}
