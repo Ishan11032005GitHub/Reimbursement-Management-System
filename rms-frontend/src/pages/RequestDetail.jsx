@@ -7,7 +7,6 @@ import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 import "./RequestDetail.css";
 
-/* ===== Status Steps ===== */
 const STEPS = ["DRAFT", "SUBMITTED", "MANAGER_APPROVED", "FINAL_APPROVED"];
 
 const humanStatus = (s) => String(s || "").replace(/_/g, " ");
@@ -57,24 +56,18 @@ export default function RequestDetail() {
   const activity = useMemo(() => {
     if (!req) return [];
     const out = [];
-
-    if (req.created_at) {
+    if (req.created_at)
       out.push({ ts: req.created_at, text: "Request created" });
-    }
-
-    if (req.responded_at || req.reviewed_at) {
+    if (req.responded_at || req.reviewed_at)
       out.push({
         ts: req.responded_at || req.reviewed_at,
         text: "Request reviewed",
       });
-    }
-
     return out;
   }, [req]);
 
   const submitDraft = async () => {
     if (!window.confirm("Submit this request?")) return;
-
     try {
       setActionLoading(true);
       await api.post(`/requests/${id}/submit`);
@@ -96,9 +89,9 @@ export default function RequestDetail() {
 
       <div className="request-detail-container">
         <div className="request-card">
-          {/* ===== TITLE + STATUS ===== */}
+          {/* TITLE + STATUS */}
           <section className="rd-section">
-            <div className="rd-header-row">
+            <div className="rd-header">
               <h2 className="rd-title">{req.title}</h2>
               <span className={`status-pill ${statusClass(req.status)}`}>
                 {humanStatus(req.status)}
@@ -106,10 +99,9 @@ export default function RequestDetail() {
             </div>
           </section>
 
-          {/* ===== STATES ===== */}
+          {/* STATES */}
           <section className="rd-section rd-states">
             <h3 className="rd-section-title">States</h3>
-
             <div className="status-timeline">
               {STEPS.map((s, i) => {
                 const isFinal = req.status === "FINAL_APPROVED";
@@ -122,10 +114,12 @@ export default function RequestDetail() {
                     key={s}
                     className={[
                       "timeline-step",
-                      isDone ? "done" : "",
-                      isActive ? "active" : "",
-                      isFuture ? "future" : "",
-                    ].join(" ")}
+                      isDone && "done",
+                      isActive && "active",
+                      isFuture && "future",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
                   >
                     <div className="step-dot" />
                     <div className="step-label">{humanStatus(s)}</div>
@@ -135,62 +129,55 @@ export default function RequestDetail() {
             </div>
           </section>
 
-          {/* ===== DETAILS + ACTIVITY ===== */}
+          {/* DETAILS */}
           <section className="rd-section">
-            <div className="rd-two-col">
-              <div className="rd-panel">
-                <h3 className="rd-section-title">Details</h3>
-
-                <div className="field-grid">
-                  <div className="field">
-                    <label>Amount</label>
-                    <p>₹{req.amount}</p>
-                  </div>
-
-                  <div className="field">
-                    <label>Category</label>
-                    <p>{req.category}</p>
-                  </div>
-
-                  <div className="field">
-                    <label>Created On</label>
-                    <p>{fmtDateTime(req.created_at)}</p>
-                  </div>
-
-                  <div className="field">
-                    <label>Expense Date</label>
-                    <p>{fmtDate(req.date)}</p>
-                  </div>
-
-                  {(req.responded_at || req.reviewed_at) && (
-                    <div className="field">
-                      <label>Responded On</label>
-                      <p>
-                        {fmtDateTime(req.responded_at || req.reviewed_at)}
-                      </p>
-                    </div>
-                  )}
+            <h3 className="rd-section-title">Details</h3>
+            <div className="rd-panel">
+              <div className="field-grid">
+                <div className="field">
+                  <label>Amount</label>
+                  <p>₹{req.amount}</p>
                 </div>
-              </div>
-
-              <div className="rd-panel">
-                <h3 className="rd-section-title">Activity</h3>
-
-                <ul className="activity-list">
-                  {activity.map((a, idx) => (
-                    <li key={idx} className="activity-item">
-                      <span className="activity-ts">
-                        {fmtDateTime(a.ts)}
-                      </span>
-                      <span className="activity-text">{a.text}</span>
-                    </li>
-                  ))}
-                </ul>
+                <div className="field">
+                  <label>Category</label>
+                  <p>{req.category}</p>
+                </div>
+                <div className="field">
+                  <label>Created On</label>
+                  <p>{fmtDateTime(req.created_at)}</p>
+                </div>
+                <div className="field">
+                  <label>Expense Date</label>
+                  <p>{fmtDate(req.date)}</p>
+                </div>
+                {(req.responded_at || req.reviewed_at) && (
+                  <div className="field">
+                    <label>Responded On</label>
+                    <p>{fmtDateTime(req.responded_at || req.reviewed_at)}</p>
+                  </div>
+                )}
               </div>
             </div>
           </section>
 
-          {/* ===== ACTIONS ===== */}
+          {/* ACTIVITY */}
+          <section className="rd-section">
+            <h3 className="rd-section-title">Activity</h3>
+            <div className="rd-panel">
+              <ul className="activity-list">
+                {activity.map((a, idx) => (
+                  <li key={idx} className="activity-item">
+                    <span className="activity-ts">
+                      {fmtDateTime(a.ts)}
+                    </span>
+                    <span className="activity-text">{a.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+
+          {/* ACTIONS */}
           <section className="rd-section rd-footer">
             {isOwner && req.status === "DRAFT" && (
               <button
@@ -201,7 +188,6 @@ export default function RequestDetail() {
                 {actionLoading ? "Submitting…" : "Submit Request"}
               </button>
             )}
-
             <Link className="back-link" to="/requests">
               ← Back to My Requests
             </Link>
