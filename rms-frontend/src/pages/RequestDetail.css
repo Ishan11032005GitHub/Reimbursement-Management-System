@@ -14,36 +14,38 @@
   flex-direction: column;
 }
 
+/* SECTION */
 .rd-section {
+  width: 100%;
   padding: 24px 0;
   border-bottom: 1px solid #e6eef5;
+  display: flex;
+  justify-content: center; /* 🔴 key fix */
 }
 .rd-section:last-child {
   border-bottom: none;
 }
 
-.rd-section-title {
-  font-size: 13px;
-  font-weight: 800;
-  color: #1e3a8a;
-  margin-bottom: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
 /* HEADER */
 .rd-header {
+  width: 100%;
+  max-width: 600px;          /* 🔴 lock centering */
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 14px;
+  align-items: center;       /* 🔴 key fix */
+  gap: 12px;
   text-align: center;
 }
+
 .rd-title {
   font-size: 28px;
   font-weight: 900;
 }
+
 .status-pill {
+  display: inline-flex;      /* 🔴 key fix */
+  align-items: center;
+  justify-content: center;
   padding: 14px 36px;
   border-radius: 999px;
   font-weight: 900;
@@ -56,7 +58,6 @@
 
 /* STATES */
 .rd-states {
-  display: flex;
   flex-direction: column;
   align-items: center;
   background: rgba(255, 255, 255, 0.45);
@@ -64,6 +65,7 @@
   padding: 28px 0;
   margin: 12px 0;
 }
+
 .status-timeline {
   width: 100%;
   max-width: 900px;
@@ -72,6 +74,7 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
 }
+
 .timeline-step {
   background: rgba(255, 255, 255, 0.85);
   border-radius: 12px;
@@ -81,6 +84,7 @@
   align-items: center;
   border: 1px solid rgba(0, 0, 0, 0.06);
 }
+
 .step-dot {
   width: 12px;
   height: 12px;
@@ -102,8 +106,10 @@
   background: rgba(255, 255, 255, 0.7);
   border-radius: 16px;
   padding: 22px;
+  width: 100%;
 }
 
+/* DETAILS */
 .field-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -145,7 +151,10 @@
   align-items: center;
   gap: 20px;
   padding-top: 32px;
+  margin-top: 24px;
+  border-top: 1px solid #e6eef5;
 }
+
 .submit-btn {
   padding: 12px 22px;
   border-radius: 10px;
@@ -155,28 +164,9 @@
   background: #1d4ed8;
   color: white;
 }
+
 .back-link {
   font-weight: 600;
   color: #1d4ed8;
   text-decoration: none;
-}
-.rd-section {
-  width: 100%;
-  display: block;
-}
-.rd-panel {
-  width: 100%;
-  max-width: 100%;
-}
-
-
-.rd-footer {
-  margin-top: 24px;
-  border-top: 1px solid #e6eef5;
-  padding-top: 24px;
-}
-
-.rd-title {
-  font-size: 26px;
-  font-weight: 800;
 }
