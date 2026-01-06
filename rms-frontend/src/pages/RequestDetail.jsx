@@ -97,7 +97,6 @@ export default function RequestDetail() {
       <div className="request-detail-container">
         <div className="request-card">
 
-          {/* ================= HEADER ================= */}
           <section className="rd-section">
             <div className="rd-header-row">
               <h2 className="rd-title">{req.title}</h2>
@@ -107,7 +106,6 @@ export default function RequestDetail() {
             </div>
           </section>
 
-          {/* ================= STATES ================= */}
           <section className="rd-section">
             <h3 className="rd-section-title">States</h3>
 
@@ -136,78 +134,42 @@ export default function RequestDetail() {
             </div>
           </section>
 
-          {/* ===== DETAILS + ACTIVITY (CORRECTED LAYOUT) ===== */}
           <section className="rd-section">
             <div className="rd-two-col">
-
-              {/* ================= DETAILS ================= */}
               <div>
                 <h3 className="rd-section-title">Details</h3>
-
                 <div className="field-grid">
-                  <div className="field">
-                    <label>Amount</label>
-                    <p>₹{req.amount}</p>
-                  </div>
-
-                  <div className="field">
-                    <label>Category</label>
-                    <p>{req.category}</p>
-                  </div>
-
-                  <div className="field">
-                    <label>Created On</label>
-                    <p>{fmtDateTime(req.created_at)}</p>
-                  </div>
-
-                  <div className="field">
-                    <label>Expense Date</label>
-                    <p>{fmtDate(req.date)}</p>
-                  </div>
-
+                  <div className="field"><label>Amount</label><p>₹{req.amount}</p></div>
+                  <div className="field"><label>Category</label><p>{req.category}</p></div>
+                  <div className="field"><label>Created On</label><p>{fmtDateTime(req.created_at)}</p></div>
+                  <div className="field"><label>Expense Date</label><p>{fmtDate(req.date)}</p></div>
                   {(req.responded_at || req.reviewed_at) && (
-                    <div className="field">
-                      <label>Responded On</label>
-                      <p>{fmtDateTime(req.responded_at || req.reviewed_at)}</p>
-                    </div>
+                    <div className="field"><label>Responded On</label><p>{fmtDateTime(req.responded_at || req.reviewed_at)}</p></div>
                   )}
                 </div>
               </div>
 
-              {/* ================= ACTIVITY ================= */}
               <div>
                 <h3 className="rd-section-title">Activity Logs</h3>
-
                 <ul className="activity-list">
                   {activity.map((a, idx) => (
                     <li key={idx} className="activity-item">
-                      <span className="activity-ts">
-                        {fmtDateTime(a.ts)}
-                      </span>
+                      <span className="activity-ts">{fmtDateTime(a.ts)}</span>
                       <span className="activity-text">{a.text}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-
             </div>
           </section>
 
-          {/* ================= ACTIONS ================= */}
           <section className="rd-section rd-footer">
             {isOwner && req.status === "DRAFT" && (
-              <button
-                className="submit-btn"
-                disabled={actionLoading}
-                onClick={submitDraft}
-              >
+              <button className="submit-btn" disabled={actionLoading} onClick={submitDraft}>
                 {actionLoading ? "Submitting…" : "Submit Request"}
               </button>
             )}
-
-            <Link className="back-link" to="/requests">
-              ← Back to My Requests
-            </Link>
+            <Link className="back-link" to="/requests">← Back to My Requests</Link>
           </section>
 
         </div>
