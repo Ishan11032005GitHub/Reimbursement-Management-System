@@ -35,20 +35,23 @@
 .rd-header {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
 }
 .rd-title {
   font-size: 28px;
   font-weight: 900;
 }
 .status-pill {
-  width: fit-content;
-  padding: 6px 14px;
+  padding: 14px 36px;
   border-radius: 999px;
-  font-weight: 700;
-  font-size: 14px;
-  background: #dbeafe;
-  color: #1d4ed8;
+  font-weight: 900;
+  font-size: 28px;
+  letter-spacing: 0.04em;
+  background: #cfe9ff;
+  color: #0b5ed7;
+  box-shadow: 0 6px 18px rgba(11, 94, 215, 0.25);
 }
 
 /* STATES */
@@ -171,4 +174,9 @@
   margin-top: 24px;
   border-top: 1px solid #e6eef5;
   padding-top: 24px;
+}
+
+.rd-title {
+  font-size: 26px;
+  font-weight: 800;
 }
