@@ -159,10 +159,9 @@ export default function RequestDetail() {
           </section>
 
           {/* FILE / ATTACHMENT */}
-<section className="rd-section">
-  <h3 className="rd-section-title">Attachment</h3>
-  <div className="rd-panel">
-    {req.file_url ? (
+{req.file_url && (
+  <section className="rd-section">
+    <div className="rd-panel">
       <a
         href={req.file_url}
         target="_blank"
@@ -171,11 +170,9 @@ export default function RequestDetail() {
       >
         📄 View Uploaded File
       </a>
-    ) : (
-      <span className="no-file">No attachment</span>
-    )}
-  </div>
-</section>
+    </div>
+  </section>
+)}
 
           {/* ACTIVITY */}
           <section className="rd-section">
