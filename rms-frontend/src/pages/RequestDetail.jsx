@@ -130,6 +130,7 @@ export default function RequestDetail() {
 
           {/* DETAILS */}
           <section className="rd-section">
+            <h3 className="rd-section-title">Details</h3>
             <div className="rd-panel">
               <div className="field-grid">
                 <div className="field">
@@ -160,6 +161,7 @@ export default function RequestDetail() {
 
           {/* ATTACHMENT */}
           <section className="rd-section">
+            <h3 className="rd-section-title">Attachment</h3>
             <div className="rd-panel">
               {req.file_url ? (
                 <a
