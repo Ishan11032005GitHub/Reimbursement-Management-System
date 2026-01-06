@@ -161,7 +161,6 @@ export default function RequestDetail() {
 
           {/* ATTACHMENT */}
           <section className="rd-section">
-            <h3 className="rd-section-title">Attachment</h3>
             <div className="rd-panel">
               {req.file_url ? (
                 <a
