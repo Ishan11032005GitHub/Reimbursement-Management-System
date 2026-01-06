@@ -101,7 +101,6 @@ export default function RequestDetail() {
 
           {/* STATES */}
           <section className="rd-section rd-states">
-            <h3 className="rd-section-title">States</h3>
             <div className="status-timeline">
               {STEPS.map((s, i) => {
                 const isFinal = req.status === "FINAL_APPROVED";
@@ -131,7 +130,6 @@ export default function RequestDetail() {
 
           {/* DETAILS */}
           <section className="rd-section">
-            <h3 className="rd-section-title">Details</h3>
             <div className="rd-panel">
               <div className="field-grid">
                 <div className="field">
@@ -163,7 +161,6 @@ export default function RequestDetail() {
           {/* FILE / ATTACHMENT */}
 {req.file_url && (
   <section className="rd-section">
-    <h3 className="rd-section-title">Attachment</h3>
     <div className="rd-panel">
       <a
         href={req.file_url}
