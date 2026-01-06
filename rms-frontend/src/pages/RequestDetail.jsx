@@ -130,6 +130,7 @@ export default function RequestDetail() {
 
           {/* DETAILS */}
           <section className="rd-section">
+            <h3 className="rd-section-title">Details</h3>
             <div className="rd-panel">
               <div className="field-grid">
                 <div className="field">
@@ -158,24 +159,28 @@ export default function RequestDetail() {
             </div>
           </section>
 
-          {/* FILE / ATTACHMENT */}
-{req.file_url && (
-  <section className="rd-section">
-    <div className="rd-panel">
-      <a
-        href={req.file_url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="file-link"
-      >
-        📄 View Uploaded File
-      </a>
-    </div>
-  </section>
-)}
+          {/* ATTACHMENT */}
+          <section className="rd-section">
+            <h3 className="rd-section-title">Attachment</h3>
+            <div className="rd-panel">
+              {req.file_url ? (
+                <a
+                  href={req.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="file-link"
+                >
+                  📄 View Uploaded File
+                </a>
+              ) : (
+                <span className="no-file">No attachment</span>
+              )}
+            </div>
+          </section>
 
           {/* ACTIVITY */}
           <section className="rd-section">
+            <h3 className="rd-section-title">Activity</h3>
             <div className="rd-panel">
               <ul className="activity-list">
                 {activity.map((a, idx) => (
